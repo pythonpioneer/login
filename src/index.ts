@@ -7,7 +7,6 @@ import dotenv from 'dotenv';
 // app environments
 const PORT: number = 5100;
 
-
 // development environment specifications
 const app = express();
 
