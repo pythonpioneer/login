@@ -4,7 +4,9 @@
     "description": "This contain the backend files for the Notes Application.",
     "main": "dist/index.js",
     "scripts": {
-        "start": "nodemon src/index.ts"
+        "start": "nodemon src/index.ts",
+        "build": "tsc",
+        "prod": "npm run build && node dist/index.js"
     },
     "author": "Hritik Kumar Sinha (pythonpioneer)",
     "license": "ISC",
