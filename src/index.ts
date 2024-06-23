@@ -1,38 +1,31 @@
-// importing requirements
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
+dotenv.config();
+const PORT: number = parseInt(process.env.PORT || '5100');
 
-// app environments
-const PORT: number = 5100;
-
-// development environment specifications
 const app = express();
-
-// dummy messages
-app.get('/', (req: Request, res: Response): Response => {
-    return res.send("OK!")
-})
-
-// to use req.body, we have to use this middleware
 app.use(express.json());
 app.use(cors());
 
-// running the app
-const server = app.listen(PORT!, () => {
-    console.log(`Notes app listening on port: ${PORT}`);
+// Routes
+app.use('/v1', require('./v1'));
+app.use('/v2', require('./v2'));
+
+const server = app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
 
-// Handle graceful shutdown
+// Graceful shutdown
 process.on('SIGTERM', () => {
-    server.close(() => {
-        console.log('Process terminated');
-    });
+  server.close(() => {
+    console.log('Process terminated');
+  });
 });
 
 process.on('SIGINT', () => {
-    server.close(() => {
-        console.log('Process terminated');
-    });
+  server.close(() => {
+    console.log('Process terminated');
+  });
 });
