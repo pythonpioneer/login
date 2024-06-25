@@ -1,31 +1,43 @@
-import express, { Request, Response } from 'express';
+// importing requirements
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
-dotenv.config();
-const PORT: number = parseInt(process.env.PORT || '5100');
+// importing routes from all possible versions
+import V1Routes from './v1'
+import V2Routes from './v2'
 
+
+// loading environment variables and fetching information for the API
+dotenv.config();
+const PORT: number = parseInt(process.env.PORT || '5100', 10);
+
+// express development environments and middlewares
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Routes
-app.use('/v1', require('./v1'));
-app.use('/v2', require('./v2'));
+// providing routes for all possible versions
+app.use('/v1', V1Routes);
+app.use('/v2', V2Routes);
 
+// app is running on the particular port
 const server = app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+	console.log(`Server is running on port: ${PORT}`);
 });
 
-// Graceful shutdown
+// handling SIGTERM signal for graceful shutdown, when the process is stopped by a system signal
 process.on('SIGTERM', () => {
-  server.close(() => {
-    console.log('Process terminated');
-  });
+	console.log('SIGTERM signal received: closing HTTP server');
+	server.close(() => {
+		console.log('HTTP server closed. Process Terminated.');
+	});
 });
 
+// handling SIGINT signal for graceful shutdown, when the process is interrupted, like with Ctrl+C
 process.on('SIGINT', () => {
-  server.close(() => {
-    console.log('Process terminated');
-  });
+	console.log('SIGINT signal received: closing HTTP server');
+	server.close(() => {
+		console.log('HTTP server closed. Process Terminated Manually.');
+	});
 });
