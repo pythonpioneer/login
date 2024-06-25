@@ -1,11 +1,20 @@
+// importing requirements
 import express, { Request, Response } from 'express';
 import { connectToMongo } from './db';
 
-const router = express.Router();
+// routes for the application
+import userRoutes from './routes/user';
+import noteRoutes from './routes/notes';
+
+
+// connect with the mongodb atlas server
 connectToMongo();
 
-router.get('/', (req: Request, res: Response): Response => {
-  return res.send("Version 1: OK!");
-});
+// implmenting routes for the API
+const app = express();
 
-module.exports = router;
+// available routes
+app.use('/user', userRoutes);
+app.use('/note', noteRoutes);
+
+export default app;

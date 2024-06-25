@@ -6,4 +6,4 @@ router.get('/', (req: Request, res: Response): Response => {
   return res.send("Version 2: Good!");
 });
 
-module.exports = router;
+export default router;
