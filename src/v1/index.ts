@@ -17,4 +17,9 @@ const app = express();
 app.use('/user', userRoutes);
 app.use('/note', noteRoutes);
 
+// health check for the server
+app.get('/health', async (_: Request, res: Response) => {
+	return res.status(200).json({ status: 200, message: 'Version 1 is Up and Running!' });
+});
+
 export default app;

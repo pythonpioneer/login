@@ -1,5 +1,5 @@
 // importing requirements
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
@@ -11,6 +11,7 @@ import V2Routes from './v2'
 // loading environment variables and fetching information for the API
 dotenv.config();
 const PORT: number = parseInt(process.env.PORT || '5100', 10);
+const APIPATH: string = process.env?.APIPATH || "apiasdf";
 
 // express development environments and middlewares
 const app = express();
@@ -18,8 +19,13 @@ app.use(express.json());
 app.use(cors());
 
 // providing routes for all possible versions
-app.use('/v1', V1Routes);
-app.use('/v2', V2Routes);
+app.use(APIPATH + 'v1', V1Routes);
+app.use(APIPATH + 'v2', V2Routes);
+
+// health check for the server
+app.get('/health', async (_: Request, res: Response) => {
+	return res.status(200).json({ status: 200, message: 'Server is Up and Running!' });
+});
 
 // app is running on the particular port
 const server = app.listen(PORT, () => {
