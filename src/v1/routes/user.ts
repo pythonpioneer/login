@@ -15,15 +15,5 @@ router.get('/login', async (req: Request, res: Response) => {
     return res.send('login')
 });
 
-// Route 3: To generate otp to change password: '/api/v1/user/generate' [using POST] (login not required)
-router.get('/generate', async (req: Request, res: Response) => {
-    return res.send('generate')
-});
-
-// Route 4: To recover/set the password using OTP: '/api/v1/user/set-password' [using POST] (login not required)
-router.get('/set-password',async (req: Request, res: Response) => {
-    return res.send('set-pass')
-});
-
 // exporting the router object
 export default router;
