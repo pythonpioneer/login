@@ -6,6 +6,8 @@ interface IUser extends Document {
     email: string;
     password: string;
     fullName: string;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 // exporting all the interfaces
