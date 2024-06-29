@@ -1,9 +1,9 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { IUser } from "./interfaces";
 import { emailRegex, passwordRegex, userFieldLengthRestrictions } from "../constants/user";
 
 // destructuring all fields restrictions
-const { emailMaxLength, passwordMinLength, passwordMaxLength, fullNameMinLength, fullNameMaxLength} = userFieldLengthRestrictions;
+const { emailMaxLength, passwordMinLength, passwordMaxLength, fullNameMinLength, fullNameMaxLength } = userFieldLengthRestrictions;
 
 
 // creating schema for user model
