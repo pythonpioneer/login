@@ -14,25 +14,25 @@ const UserSchema: Schema<IUser> = new Schema({
         unique: true,
         trim: true,
         lowercase: true,
-        match: [emailRegex, 'Please use a valid Email address.'],
-        max: [emailMaxLength, `Email length can not be longer than ${emailMaxLength} characters.`]
+        match: [ emailRegex, 'Use a valid Email address.' ],
+        max: [ emailMaxLength, `Email length can not be longer than ${emailMaxLength} characters.` ]
     }, 
     password: {
         type: String,
         required: true,
         trim: true,
-        match: [passwordRegex, 'Please use a valid Password.'],
-        min: [passwordMinLength, `Password must be atleast ${passwordMinLength} characters long.`],
-        max: [passwordMaxLength, `Password can not be longer than ${passwordMaxLength} characters.`]
+        match: [ passwordRegex, 'Use a valid Password.' ],
+        min: [ passwordMinLength, `Password must be atleast ${passwordMinLength} characters long.` ],
+        max: [ passwordMaxLength, `Password can not be longer than ${passwordMaxLength} characters.` ]
     },
     fullName: {
         type: String,
         required: true,
         trim: true,
-        min: [fullNameMinLength, `FullName must be atleast ${fullNameMinLength} character long.`],
-        max: [fullNameMaxLength, `FullName can not be longer than ${fullNameMaxLength} characters.`]
+        min: [ fullNameMinLength, `FullName must be atleast ${fullNameMinLength} character long.` ],
+        max: [ fullNameMaxLength, `FullName can not be longer than ${fullNameMaxLength} characters.` ]
     },
-});
+}, { timestamps: true });
 
 // export the user model
 const User = mongoose.model<IUser>('user', UserSchema);
