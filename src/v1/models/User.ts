@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
-import { User } from "./interfaces";
+import { IUser } from "./interfaces";
 import { emailRegex, passwordRegex, userFieldLengthRestrictions } from "../constants/user";
 
 // destructuring all fields restrictions
@@ -7,7 +7,7 @@ const { emailMaxLength, passwordMinLength, passwordMaxLength, fullNameMinLength,
 
 
 // creating schema for user model
-const UserSchema: Schema<User> = new Schema({
+const UserSchema: Schema<IUser> = new Schema({
     email: {
         type: String,
         required: true,
@@ -35,5 +35,5 @@ const UserSchema: Schema<User> = new Schema({
 });
 
 // export the user model
-const User = mongoose.model('user', UserSchema);
+const User = mongoose.model<IUser>('user', UserSchema);
 export { User }

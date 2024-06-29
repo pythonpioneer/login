@@ -2,11 +2,11 @@ import { Document } from "mongoose";
 
 
 // creating structure for the user
-interface User extends Document {
+interface IUser extends Document {
     email: string;
     password: string;
     fullName: string;
 }
 
 // exporting all the interfaces
-export { User };
+export { IUser };
