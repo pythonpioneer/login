@@ -2,6 +2,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
 
 // importing routes from all possible versions
 import V1Routes from './v1'
@@ -10,13 +11,14 @@ import V2Routes from './v2'
 
 // loading environment variables and fetching information for the API
 dotenv.config();
-const PORT: number = parseInt(process.env.PORT || '5100', 10);
+const PORT: number = parseInt(process.env?.PORT || '5100', 10);
 const APIPATH: string = process.env?.APIPATH || "apiasdf";
 
 // express development environments and middlewares
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use(cookieParser(process.env?.COOKIE_SECRET_KEY));
 
 // providing routes for all possible versions
 app.use(APIPATH + 'v1', V1Routes);
