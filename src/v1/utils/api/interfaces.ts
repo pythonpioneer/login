@@ -1,9 +1,10 @@
 import { Response } from "express";
+import StatusCode from "../../../statusCodes";
 
 // response structure
 interface IResponse {
     response: Response;
-    statusCode: number;
+    statusCode: StatusCode;
     message: string;
     info?: string;
 
