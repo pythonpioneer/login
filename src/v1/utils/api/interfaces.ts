@@ -9,6 +9,7 @@ interface IResponse {
     info?: string;
 
     data?: ISignInResponse;
+    error?: any;
 }
 
 // structure for the response when signing

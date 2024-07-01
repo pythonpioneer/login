@@ -1,12 +1,14 @@
 // importing requirements
 import express, { Request, Response } from 'express';
+import validateValidationRules, { RequestData } from '../middlewares/validationMiddleware';
+import { registrationSchema } from '../validationSchema/user';
 
 
 // creating router for the routes
 const router = express.Router();
 
 // Route 1: To create user: '/api/v1/user/register' [using POST] (login not required)
-router.get('/register', async (req: Request, res: Response) => {
+router.post('/register', validateValidationRules(registrationSchema, RequestData.BODY), async (req: Request, res: Response) => {
     return res.send('register')
 });
 

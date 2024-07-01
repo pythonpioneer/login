@@ -29,10 +29,10 @@ function validateValidationRules<T extends ZodSchema>(schema: T, type: requestDa
                     path: issue.path.join('.'),
                     message: issue.message,
                 }));
-                return res.status(400).json({ error: 'Invalid data', details: errorMessages });
+                return apiResponse({ response: res, statusCode: StatusCode.BadRequest, message: "Field Validation Failed", error: errorMessages });
             }
         } catch (error) {  // unrecogonized errors
-            return apiResponse({ response: res, statusCode: StatusCode.InternalServerError, message: "Internal Server Error" })
+            return apiResponse({ response: res, statusCode: StatusCode.InternalServerError, message: "Internal Server Error", error })
         }
     };
 }
@@ -48,3 +48,4 @@ type requestDataType = RequestData.BODY | RequestData.QUERY;
 
 // export the validation middleware
 export default validateValidationRules;
+export { RequestData };

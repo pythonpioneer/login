@@ -3,7 +3,7 @@ import { IResponse } from "./interfaces";
 
 
 // to send the response
-const apiResponse = ({ response, statusCode, message, data }: IResponse): Response => {
+const apiResponse = ({ response, statusCode, message, data, error }: IResponse): Response => {
 
     // when data exists then only inject cookies
     if (data) {
@@ -20,7 +20,7 @@ const apiResponse = ({ response, statusCode, message, data }: IResponse): Respon
     }
 
     // send the response also with json
-    return response.status(statusCode).json({ statusCode, message, data });
+    return response.status(statusCode).json({ statusCode, message, data, error });
 }
 
 // exporting the response method
