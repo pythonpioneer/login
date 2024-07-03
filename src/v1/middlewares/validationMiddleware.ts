@@ -1,4 +1,4 @@
-import { z, ZodError, ZodSchema } from "zod";
+import { ZodSchema } from "zod";
 import { Request, Response, NextFunction } from "express";
 import StatusCode from "../../statusCodes";
 import apiResponse from "../utils/api/apiResponse";

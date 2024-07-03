@@ -60,4 +60,9 @@ const registerUser = async (req: Request, res: Response): Promise<Response<IResp
     }
 }
 
-export { registerUser };
+// to login users through email and password
+const loginUser = async (req: Request, res: Response): Promise<Response<IResponse>> => {
+    return apiResponse({ response: res, statusCode: StatusCode.OK, message: "login" })
+}
+
+export { registerUser, loginUser };
