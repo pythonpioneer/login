@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import { IUser } from "./interfaces";
 import { emailRegex, passwordRegex, userFieldLengthRestrictions } from "../constants/user";
+import { generatePassword } from "../utils/secure/password";
 
 // destructuring all fields restrictions
 const { emailMaxLength, passwordMinLength, passwordMaxLength, fullNameMinLength, fullNameMaxLength } = userFieldLengthRestrictions;
@@ -41,6 +42,17 @@ const UserSchema: Schema<IUser> = new Schema({
         default: "",
     }
 }, { timestamps: true });
+
+// implementing hooks to encrypt password just before saving the password inside the database
+UserSchema.pre<IUser>("save", async function (next) {
+
+    // if password is not modified, then don't encrypt the password
+    if (!this.isModified("password")) return next();
+
+    // if user set the new password or modified the password then encrypt the password
+    this.password = await generatePassword(this.password);
+    return next();
+});
 
 // export the user model
 const User = mongoose.model<IUser>('User', UserSchema);

@@ -1,11 +1,10 @@
 import { Request, Response } from 'express';
-import { generatePassword } from '../utils/secure/password';
 import { User } from '../models/User';
 import { generateToken } from '../utils/secure/tokens';
 import { IPayloadData } from '../utils/secure/interfaces';
+import { IResponse } from '../utils/api/interfaces';
 import apiResponse from '../utils/api/apiResponse';
 import StatusCode from '../../statusCodes';
-import { IResponse } from '../utils/api/interfaces';
 
 
 // to create a new users or register users
@@ -15,13 +14,14 @@ const registerUser = async (req: Request, res: Response): Promise<Response<IResp
         const { fullName, password } = req.body;
         const email = req.body.email.toLowerCase();
 
-        // generate secure password from the existing password
-        const securePassword = await generatePassword(password);
+        // check that the email is unique
+        const existingUser = await User.findOne({ email });
+        if (existingUser) return apiResponse({ response: res, statusCode: StatusCode.Conflict, message: "User Already exists with this email" });
 
         // now, create a new user with these provided data
         const user = await User.create({
             email,
-            password: securePassword,
+            password,
             fullName
         });
 
@@ -42,6 +42,7 @@ const registerUser = async (req: Request, res: Response): Promise<Response<IResp
         user.accessToken = authToken;
         user.refreshToken = authToken;
         user.save();
+        console.log({user})
 
         // user created successfully
         return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Created Successfully", data: { authToken, fullName: user?.fullName || "No Name" } });
@@ -49,9 +50,9 @@ const registerUser = async (req: Request, res: Response): Promise<Response<IResp
     } catch (error) {
 
         // Type assertion to handle MongoDB duplicate key error
-        if ((error as any).code === 11000) {
+        if ((error as any)?.code === 11000) {
             // Duplicate key error (e.g., email already exists)
-            return apiResponse({ response: res, statusCode: StatusCode.BadRequest, message: "User with this email already exists", error });
+            return apiResponse({ response: res, statusCode: StatusCode.BadRequest, message: "User Not Created", error });
         }
 
         // other unrecogonized errors
