@@ -1,5 +1,6 @@
 import { Response } from "express";
 import StatusCode from "../../../statusCodes";
+import { FullName, Token } from "../../models/interfaces";
 
 // response structure
 interface IResponse {
@@ -14,7 +15,8 @@ interface IResponse {
 
 // structure for the response when signing
 interface ISignInResponse {
-    authToken: string;
+    authToken: Token;
+    fullName: FullName;
 }
 
 // exporting all interfaces
