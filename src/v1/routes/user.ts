@@ -1,5 +1,5 @@
 // importing requirements
-import express, { Request, Response } from 'express';
+import express from 'express';
 import validateValidationRules, { RequestData } from '../middlewares/validationMiddleware';
 import { loginSchema, registrationSchema } from '../validationSchema/user';
 import { loginUser, registerUser } from '../controllers/user';

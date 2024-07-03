@@ -24,10 +24,10 @@ const generatePassword = async (password: string): Promise<string> => {
  * @param {String} actualPassword - It takes the hashed password
  * @returns {Boolean} - It returns true, if password mathches else false
  * */ 
-const comparePassword = (currentPassword: string, actualPassword: string): boolean => {
+const comparePassword = async (currentPassword: string, actualPassword: string): Promise<boolean> => {
     if(!currentPassword || !actualPassword) 
         throw new Error('All Fields are required');
-    return bcrypt.compareSync(currentPassword, actualPassword);
+    return await bcrypt.compareSync(currentPassword, actualPassword);
 };
 
 export { generatePassword, comparePassword };

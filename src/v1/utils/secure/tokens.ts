@@ -1,11 +1,12 @@
 // importing all requirements
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { IPayloadData } from './interfaces';
 dotenv.config();
 
 
 // to generate the auth token and the data inside the token
-const generateToken = (payloadData: any): string => {
+const generateToken = (payloadData: IPayloadData): string => {
 
     const SIGNATURE = process.env?.SIGNATURE;
 

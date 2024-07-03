@@ -13,7 +13,6 @@ interface IUser extends Document {
     password: Password;
     fullName: FullName;
 
-    accessToken?: Token;
     refreshToken?: Token;
 
     createdAt: Date;

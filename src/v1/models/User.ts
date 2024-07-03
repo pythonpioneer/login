@@ -33,10 +33,6 @@ const UserSchema: Schema<IUser> = new Schema({
         min: [ fullNameMinLength, `FullName must be atleast ${fullNameMinLength} character long.` ],
         max: [ fullNameMaxLength, `FullName can not be longer than ${fullNameMaxLength} characters.` ]
     },
-    accessToken: {
-        type: String,
-        default: "",
-    },
     refreshToken: {
         type: String,
         default: "",

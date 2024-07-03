@@ -5,6 +5,8 @@ import { IPayloadData } from '../utils/secure/interfaces';
 import { IResponse } from '../utils/api/interfaces';
 import apiResponse from '../utils/api/apiResponse';
 import StatusCode from '../../statusCodes';
+import { comparePassword } from '../utils/secure/password';
+import { Token } from '../models/interfaces';
 
 
 // to create a new users or register users
@@ -39,10 +41,8 @@ const registerUser = async (req: Request, res: Response): Promise<Response<IResp
         if (!user) return apiResponse({ response: res, statusCode: StatusCode.BadRequest, message: "User Not Created" });
 
         // now save the token inside the user model
-        user.accessToken = authToken;
         user.refreshToken = authToken;
-        user.save();
-        console.log({user})
+        user.save({ validateBeforeSave: false });
 
         // user created successfully
         return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Created Successfully", data: { authToken, fullName: user?.fullName || "No Name" } });
@@ -62,7 +62,40 @@ const registerUser = async (req: Request, res: Response): Promise<Response<IResp
 
 // to login users through email and password
 const loginUser = async (req: Request, res: Response): Promise<Response<IResponse>> => {
-    return apiResponse({ response: res, statusCode: StatusCode.OK, message: "login" })
+    try {
+        // fetching data from request body
+        const { email, password } = req.body;
+
+        // now find the user, if user not exist, then login is not possible
+        const user = await User.findOne({ email });
+        if (!user) return apiResponse({ response: res, statusCode: StatusCode.NotFound, message: "User with this Email does not exist." });
+
+        // compare the user password
+        const isPasswordMatched = await comparePassword(password, user.password);
+        if (!isPasswordMatched) return apiResponse({ response: res, statusCode: StatusCode.Unauthorized, message: "Invalid Credentials" });
+
+        // payload for tokens
+        const payloadData: IPayloadData = {
+            user: {
+                id: user.id,
+            }
+        } 
+
+        let authToken: Token;
+
+        /* check that the user have token or not, 
+        if user have token then return the same token else generate the new token */
+        if (user.refreshToken) authToken = user.refreshToken;
+        else authToken = generateToken(payloadData);
+
+        // user logged in successfully
+        return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Logged in Successfully", data: { authToken, fullName: user.fullName } });
+        
+    } catch (error) {
+        
+        // other unrecogonized errors
+        return apiResponse({ response: res, statusCode: StatusCode.InternalServerError, message: "Internal Server Error", error });
+    }
 }
 
 export { registerUser, loginUser };
