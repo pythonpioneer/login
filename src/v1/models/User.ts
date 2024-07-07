@@ -1,10 +1,10 @@
 import mongoose, { Schema } from "mongoose";
 import { IUser } from "./interfaces";
-import { emailRegex, passwordRegex, userFieldLengthRestrictions } from "../constants/user";
+import { EMAIL_REGEX, PASSWORD_REGEX, USER_FIELD_LENGTH_RESTRICTIONS } from "../constants/user";
 import { generatePassword } from "../utils/secure/password";
 
 // destructuring all fields restrictions
-const { emailMaxLength, passwordMinLength, passwordMaxLength, fullNameMinLength, fullNameMaxLength } = userFieldLengthRestrictions;
+const { emailMaxLength, passwordMinLength, passwordMaxLength, fullNameMinLength, fullNameMaxLength } = USER_FIELD_LENGTH_RESTRICTIONS;
 
 
 // creating schema for user model
@@ -15,14 +15,14 @@ const UserSchema: Schema<IUser> = new Schema({
         unique: true,
         trim: true,
         lowercase: true,
-        match: [ emailRegex, 'Use a valid Email address.' ],
+        match: [ EMAIL_REGEX, 'Use a valid Email address.' ],
         max: [ emailMaxLength, `Email length can not be longer than ${emailMaxLength} characters.` ]
     }, 
     password: {
         type: String,
         required: true,
         trim: true,
-        match: [ passwordRegex, 'Use a valid Password.' ],
+        match: [ PASSWORD_REGEX, 'Use a valid Password.' ],
         min: [ passwordMinLength, `Password must be atleast ${passwordMinLength} characters long.` ],
         max: [ passwordMaxLength, `Password can not be longer than ${passwordMaxLength} characters.` ]
     },

@@ -1,5 +1,6 @@
-import { SALT_ROUNDS } from "./constants";
-const bcrypt = require('bcryptjs');
+import bcrypt from "bcryptjs";
+import dotenv from "dotenv";
+dotenv.config();
 
 
 /**
@@ -9,6 +10,7 @@ const bcrypt = require('bcryptjs');
  */
 const generatePassword = async (password: string): Promise<string> => {
     try {
+        const SALT_ROUNDS = Number(process.env?.SALT_ROUNDS) || 13;
         const salt = await bcrypt.genSalt(SALT_ROUNDS);
         const securePassword = await bcrypt.hash(password, salt);
 
@@ -27,7 +29,7 @@ const generatePassword = async (password: string): Promise<string> => {
 const comparePassword = async (currentPassword: string, actualPassword: string): Promise<boolean> => {
     if(!currentPassword || !actualPassword) 
         throw new Error('All Fields are required');
-    return await bcrypt.compareSync(currentPassword, actualPassword);
+    return bcrypt.compareSync(currentPassword, actualPassword);
 };
 
 export { generatePassword, comparePassword };

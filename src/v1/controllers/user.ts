@@ -35,7 +35,7 @@ const registerUser = async (req: Request, res: Response): Promise<Response<IResp
         };
 
         // generate the authentication token
-        const authToken = generateToken(payloadData);
+        const authToken = generateToken({ payloadData });
 
         // if user not created or something went wrong while creating user
         if (!user) return apiResponse({ response: res, statusCode: StatusCode.BadRequest, message: "User Not Created" });
@@ -63,8 +63,9 @@ const registerUser = async (req: Request, res: Response): Promise<Response<IResp
 // to login users through email and password
 const loginUser = async (req: Request, res: Response): Promise<Response<IResponse>> => {
     try {
-        // fetching data from request body
+        // fetching data from request body and cookies
         const { email, password } = req.body;
+        const { authToken: clientAuthToken } = req.cookies;
 
         // now find the user, if user not exist, then login is not possible
         const user = await User.findOne({ email });
@@ -81,12 +82,10 @@ const loginUser = async (req: Request, res: Response): Promise<Response<IRespons
             }
         } 
 
-        let authToken: Token;
-
-        /* check that the user have token or not, 
-        if user have token then return the same token else generate the new token */
-        if (user.refreshToken) authToken = user.refreshToken;
-        else authToken = generateToken(payloadData);
+        // after successfull login, generate a new token and give it to user
+        const authToken: Token = generateToken({ payloadData });
+        user.refreshToken = authToken;
+        user.save({ validateBeforeSave: false });
 
         // user logged in successfully
         return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Logged in Successfully", data: { authToken, fullName: user.fullName } });

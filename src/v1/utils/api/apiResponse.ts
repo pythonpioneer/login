@@ -1,5 +1,6 @@
 import { Response } from "express";
 import { IResponse } from "./interfaces";
+import { COOKIE_AGE } from "../secure/constants";
 
 
 // to send the response
@@ -12,7 +13,7 @@ const apiResponse = ({ response, statusCode, message, data, error }: IResponse):
         Object.entries(data).forEach(([key, value]) => {
             response.cookie(key, value, {
                 httpOnly: true,
-                maxAge: 15 * 24 * 60 * 60 * 1000,  // expires in 15 days
+                maxAge: COOKIE_AGE,
                 secure: true,
                 signed: true,
             });
