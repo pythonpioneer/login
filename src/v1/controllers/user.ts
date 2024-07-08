@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { User } from '../models/User';
-import { generateToken } from '../utils/secure/tokens';
+import { generateToken, PossibleTokenTypes } from '../utils/secure/tokens';
 import { IPayloadData } from '../utils/secure/interfaces';
 import { IResponse } from '../utils/api/interfaces';
 import apiResponse from '../utils/api/apiResponse';
@@ -35,17 +35,18 @@ const registerUser = async (req: Request, res: Response): Promise<Response<IResp
         };
 
         // generate the authentication token
-        const authToken = generateToken({ payloadData });
+        const accessToken: Token = generateToken({ payloadData, tokenType: PossibleTokenTypes.ACCESS_TOKEN }); 
+        const refreshToken: Token = generateToken({ payloadData, tokenType: PossibleTokenTypes.REFRESH_TOKEN });
 
         // if user not created or something went wrong while creating user
         if (!user) return apiResponse({ response: res, statusCode: StatusCode.BadRequest, message: "User Not Created" });
 
         // now save the token inside the user model
-        user.refreshToken = authToken;
+        user.refreshToken = refreshToken;
         user.save({ validateBeforeSave: false });
 
         // user created successfully
-        return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Created Successfully", data: { authToken, fullName: user?.fullName || "No Name" } });
+        return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Created Successfully", data: { accessToken, refreshToken, fullName: user?.fullName || "No Name" } });
 
     } catch (error) {
 
@@ -65,7 +66,6 @@ const loginUser = async (req: Request, res: Response): Promise<Response<IRespons
     try {
         // fetching data from request body and cookies
         const { email, password } = req.body;
-        const { authToken: clientAuthToken } = req.cookies;
 
         // now find the user, if user not exist, then login is not possible
         const user = await User.findOne({ email });
@@ -82,13 +82,15 @@ const loginUser = async (req: Request, res: Response): Promise<Response<IRespons
             }
         } 
 
-        // after successfull login, generate a new token and give it to user
-        const authToken: Token = generateToken({ payloadData });
-        user.refreshToken = authToken;
+        // after successfull login, generate new tokens and give it to the client
+        const accessToken: Token = generateToken({ payloadData, tokenType: PossibleTokenTypes.ACCESS_TOKEN }); 
+        const refreshToken: Token = generateToken({ payloadData, tokenType: PossibleTokenTypes.REFRESH_TOKEN });
+
+        user.refreshToken = refreshToken;
         user.save({ validateBeforeSave: false });
 
         // user logged in successfully
-        return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Logged in Successfully", data: { authToken, fullName: user.fullName } });
+        return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Logged in Successfully", data: { accessToken, refreshToken, fullName: user.fullName } });
         
     } catch (error) {
         

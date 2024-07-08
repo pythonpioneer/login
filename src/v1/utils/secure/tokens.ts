@@ -8,7 +8,7 @@ dotenv.config();
 
 
 // to generate the auth token, and putting the data inside the token
-const generateToken = ({ payloadData, tokenType=PossibleTokenTypes.ACCESS_TOKEN }: { payloadData: IPayloadData, tokenType?: AuthTokenType }): string => {
+const generateToken = ({ payloadData, tokenType=PossibleTokenTypes.ACCESS_TOKEN }: { payloadData: IPayloadData, tokenType?: AuthTokenType }): Token => {
 
     // determing the signature based on the token type
     const SIGNATURE = (tokenType === PossibleTokenTypes.ACCESS_TOKEN) ? process.env?.ACCESS_TOKEN_SIGNATURE : process.env?.REFRESH_TOKEN_SIGNATURE;
@@ -46,4 +46,4 @@ enum PossibleTokenTypes {
     REFRESH_TOKEN = 'REFRESH_TOKEN'
 }
 
-export { generateToken, PossibleTokenTypes };
+export { generateToken, verifyToken, PossibleTokenTypes };

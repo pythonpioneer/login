@@ -15,7 +15,8 @@ interface IResponse {
 
 // structure for the response when signing
 interface ISignInResponse {
-    authToken: Token;
+    accessToken: Token;
+    refreshToken: Token;
     fullName: FullName;
 }
 
