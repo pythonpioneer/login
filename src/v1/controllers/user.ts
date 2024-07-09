@@ -23,7 +23,7 @@ const registerUser = async (req: Request, res: Response): Promise<Response<IResp
         // now, create a new user with these provided data
         const user = await User.create({
             email,
-            password,
+            password,  // password is hashed by pre-hooks inside schema
             fullName
         });
 
@@ -99,4 +99,17 @@ const loginUser = async (req: Request, res: Response): Promise<Response<IRespons
     }
 }
 
-export { registerUser, loginUser };
+// to logout the user, only refresh token required
+const logoutUser = async (req: Request, res: Response): Promise<Response<IResponse>> => {
+    try {
+
+        return apiResponse({ response: res, statusCode: 200, message: "ok" })
+        
+    } catch (error) {
+
+        // other unrecogonized errors
+        return apiResponse({ response: res, statusCode: StatusCode.InternalServerError, message: "Internal Server Error", error });
+    }
+}
+
+export { registerUser, loginUser, logoutUser };

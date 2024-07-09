@@ -2,7 +2,7 @@
 import express from 'express';
 import validateValidationRules, { RequestData } from '../middlewares/validationMiddleware';
 import { loginSchema, registrationSchema } from '../validationSchema/user';
-import { loginUser, registerUser } from '../controllers/user';
+import { loginUser, logoutUser, registerUser } from '../controllers/user';
 
 
 // creating router for the routes
@@ -15,9 +15,7 @@ router.post('/register', validateValidationRules(registrationSchema, RequestData
 router.post('/login', validateValidationRules(loginSchema, RequestData.BODY), loginUser);
 
 // Route 3: To logout an existing users: '/api/v1/user/logout' [using POST] (login required)
-router.post('/logout', async (req, res) => {
-    res.send("logout")
-});
+router.post('/logout', logoutUser);
 
 // Route 4: To delete an existing users: '/api/v1/user/delete-user' [using POST] (login required)
 router.post('/delete-user', async (req, res) => {
