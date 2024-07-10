@@ -2,10 +2,11 @@ import { NextFunction, Request, Response } from "express";
 import apiResponse from "../utils/api/apiResponse";
 import StatusCode from "../../statusCodes";
 import { PossibleTokenTypes, verifyToken } from "../utils/secure/tokens";
+import { IResponse } from "../utils/api/interfaces";
 
 
 // to fetch the user id from the authentication token, especially from refresh token
-function fetchLoginUser(req: Request, res: Response, next: NextFunction) {
+function fetchLoggedinUser(req: Request, res: Response, next: NextFunction) {
     try {
         // fetch the token from the cookie
         const refreshToken = req.cookies?.refreshToken;
@@ -15,8 +16,9 @@ function fetchLoginUser(req: Request, res: Response, next: NextFunction) {
         const payloadData = verifyToken({ authToken: refreshToken, tokenType: PossibleTokenTypes.REFRESH_TOKEN });
         if (!payloadData) return apiResponse({ response: res, statusCode: StatusCode.Unauthorized, message: 'Token Verification failed' });
 
+        // @ts-ignore
         req.userId = payloadData.user.id;
-        next();
+        return next();
 
     } catch (error) {
         
@@ -25,4 +27,4 @@ function fetchLoginUser(req: Request, res: Response, next: NextFunction) {
     }
 }
 
-export { fetchLoginUser }
+export { fetchLoggedinUser }
