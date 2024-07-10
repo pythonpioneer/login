@@ -4,7 +4,7 @@ import { COOKIE_AGE } from "../secure/constants";
 
 
 // to send the response
-const apiResponse = ({ response, statusCode, message, data, error }: IResponse): Response => {
+const apiResponse = ({ response, statusCode, message, data, error, user }: IResponse): Response => {
 
     // when data exists then only inject cookies
     if (data) {
@@ -21,7 +21,7 @@ const apiResponse = ({ response, statusCode, message, data, error }: IResponse):
     }
 
     // send the response also with json
-    return response.status(statusCode).json({ statusCode, message, data, error });
+    return response.status(statusCode).json({ statusCode, message, data, error, user });
 }
 
 // exporting the response method

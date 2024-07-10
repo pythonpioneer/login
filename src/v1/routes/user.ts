@@ -2,8 +2,8 @@
 import express from 'express';
 import validateValidationRules, { RequestData } from '../middlewares/validationMiddleware';
 import { loginSchema, registrationSchema } from '../validationSchema/user';
-import { loginUser, logoutUser, registerUser } from '../controllers/user';
-import { fetchLoggedinUser } from '../middlewares/validateUser';
+import { loginUser, logoutUser, registerUser, getCurrentUser } from '../controllers/user';
+import { fetchLoggedinUserViaAccessToken, fetchLoggedinUserViaRefreshToken } from '../middlewares/validateUser';
 
 
 // creating router for the routes
@@ -15,13 +15,16 @@ router.post('/register', validateValidationRules(registrationSchema, RequestData
 // Route 2: To login an existing user: '/api/v1/user/login' [using POST] (login not required)
 router.post('/login', validateValidationRules(loginSchema, RequestData.BODY), loginUser);
 
-// Route 3: To logout an existing users: '/api/v1/user/logout' [using POST] (login required)
-router.post('/logout', fetchLoggedinUser, logoutUser);
+// Route 3: To logout the existing users: '/api/v1/user/logout' [using POST] (login required)
+router.post('/logout', fetchLoggedinUserViaRefreshToken, logoutUser);
 
-// Route 4: To delete an existing users: '/api/v1/user/delete-user' [using POST] (login required)
+// Route 4: To delete the existing user: '/api/v1/user/delete-user' [using POST] (login required)
 router.post('/delete-user', async (req, res) => {
     res.send("delete")
 });
+
+// Route 5: To get the details of the current user: '/api/v1/user/' [using GET] (login required)
+router.get('/', fetchLoggedinUserViaAccessToken, getCurrentUser);
 
 // exporting the router object
 export default router;

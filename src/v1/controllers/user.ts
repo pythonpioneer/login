@@ -102,8 +102,23 @@ const loginUser = async (req: Request, res: Response): Promise<Response<IRespons
 // to logout the user, only refresh token required
 const logoutUser = async (req: Request, res: Response): Promise<Response<IResponse>> => {
     try {
+        // @ts-ignore // fetching user information from request and fetch the user
+        const userId = req.userId;
 
-        return apiResponse({ response: res, statusCode: 200, message: "ok" })
+        const user = await User.findById(userId);
+        if (!user) return apiResponse({ response: res, statusCode: StatusCode.NotFound, message: "User Not Found" });
+
+        // user already logged out
+        if (!user.refreshToken) return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Already logged out" });
+
+        // now, clear the tokens
+        user.refreshToken = null;
+        await user.save({ validateBeforeSave: false });
+
+        res.clearCookie('refreshToken');
+        res.clearCookie('accessToken');
+
+        return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User logged out Successfully!" });
         
     } catch (error) {
 
@@ -112,4 +127,23 @@ const logoutUser = async (req: Request, res: Response): Promise<Response<IRespon
     }
 }
 
-export { registerUser, loginUser, logoutUser };
+// to fetch the logged in user details
+const getCurrentUser = async (req: Request, res: Response): Promise<Response<IResponse>> => {
+    try {
+        // @ts-ignore // fetching user information from request and fetch the user
+        const userId = req.userId;
+
+        const user = await User.findById(userId)?.select('-refreshToken -password');
+        if (!user) return apiResponse({ response: res, statusCode: StatusCode.NotFound, message: "User Not Found" });
+
+        // now, send the user
+        return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Found", user });
+
+    } catch (error) {
+
+        // other unrecogonized errors
+        return apiResponse({ response: res, statusCode: StatusCode.InternalServerError, message: "Internal Server Error", error });
+    }
+}
+
+export { registerUser, loginUser, logoutUser, getCurrentUser };
