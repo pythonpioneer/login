@@ -2,7 +2,7 @@
 import express from 'express';
 import validateValidationRules, { RequestData } from '../middlewares/validationMiddleware';
 import { loginSchema, registrationSchema } from '../validationSchema/user';
-import { loginUser, logoutUser, registerUser, getCurrentUser } from '../controllers/user';
+import { loginUser, logoutUser, registerUser, getCurrentUser, loginViaTokens } from '../controllers/user';
 import { fetchLoggedinUserViaAccessToken, fetchLoggedinUserViaRefreshToken } from '../middlewares/validateUser';
 
 
@@ -20,11 +20,14 @@ router.post('/logout', fetchLoggedinUserViaRefreshToken, logoutUser);
 
 // Route 4: To delete the existing user: '/api/v1/user/delete-user' [using POST] (login required)
 router.post('/delete-user', async (req, res) => {
-    res.send("delete")
+    res.send("Can't delete, Work in progress");
 });
 
 // Route 5: To get the details of the current user: '/api/v1/user/' [using GET] (login required)
 router.get('/', fetchLoggedinUserViaAccessToken, getCurrentUser);
+
+// Route 6: To login through tokens: '/api/v1/user/fast-login' [using GET] (login required)
+router.post('/fast-login', fetchLoggedinUserViaRefreshToken, loginViaTokens);
 
 // exporting the router object
 export default router;

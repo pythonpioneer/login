@@ -9,7 +9,7 @@ function fetchLoggedinUserViaRefreshToken(req: Request, res: Response, next: Nex
     try {
         // fetch the token from the cookie
         const refreshToken = req.cookies?.refreshToken;
-        if (!refreshToken) return apiResponse({ response: res, statusCode: StatusCode.Unauthorized, message: "Authentication token is missing" });
+        if (!refreshToken) return apiResponse({ response: res, statusCode: StatusCode.NotFound, message: "Authentication token is missing" });
 
         // now, validate the token and embed the userId inside the request
         const payloadData = verifyToken({ authToken: refreshToken, tokenType: PossibleTokenTypes.REFRESH_TOKEN });
@@ -21,8 +21,18 @@ function fetchLoggedinUserViaRefreshToken(req: Request, res: Response, next: Nex
 
     } catch (error) {
         
-        // unrecogonized errors
-        return apiResponse({ response: res, statusCode: StatusCode.InternalServerError, message: "Something went Wrong while validating auth token", error });
+        // Handle specific token verification errors
+        if (error instanceof Error) {
+            let errorMessage = error.message || 'Token verification failed';
+            if (error.message.includes('expired')) {
+                errorMessage = 'Refresh token expired. Please log in again.';
+            }
+            return apiResponse({ response: res, statusCode: StatusCode.Unauthorized, message: errorMessage });
+        }
+
+        // Handle other unrecognized errors
+        return apiResponse({ response: res, statusCode: StatusCode.InternalServerError, message: "Something went wrong while validating auth token", error });
+
     }
 }
 
@@ -31,7 +41,7 @@ function fetchLoggedinUserViaAccessToken(req: Request, res: Response, next: Next
     try {
         // fetch the token from the cookie
         const accessToken = req.cookies?.accessToken;
-        if (!accessToken) return apiResponse({ response: res, statusCode: StatusCode.Unauthorized, message: "Authentication token is missing" });
+        if (!accessToken) return apiResponse({ response: res, statusCode: StatusCode.NotFound, message: "Authentication token is missing" });
 
         // now, validate the token and embed the userId inside the request
         const payloadData = verifyToken({ authToken: accessToken, tokenType: PossibleTokenTypes.ACCESS_TOKEN });

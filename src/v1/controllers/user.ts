@@ -104,12 +104,14 @@ const logoutUser = async (req: Request, res: Response): Promise<Response<IRespon
     try {
         // @ts-ignore // fetching user information from request and fetch the user
         const userId = req.userId;
+        const refreshToken = req.cookies?.refreshToken;
 
         const user = await User.findById(userId);
         if (!user) return apiResponse({ response: res, statusCode: StatusCode.NotFound, message: "User Not Found" });
 
         // user already logged out
         if (!user.refreshToken) return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Already logged out" });
+        if (user.refreshToken !== refreshToken) return apiResponse({ response: res, statusCode: StatusCode.Forbidden, message: "Not allowed to logout" });
 
         // now, clear the tokens
         user.refreshToken = null;
@@ -146,4 +148,36 @@ const getCurrentUser = async (req: Request, res: Response): Promise<Response<IRe
     }
 }
 
-export { registerUser, loginUser, logoutUser, getCurrentUser };
+// to login through refresh token
+const loginViaTokens = async (req: Request, res: Response): Promise<Response<IResponse>> => {
+    try {
+        // @ts-ignore // fetching user information from request and fetch the user
+        const userId = req.userId;
+        const refreshToken = req.cookies?.refreshToken;
+
+        const user = await User.findById(userId);
+        if (!user) return apiResponse({ response: res, statusCode: StatusCode.NotFound, message: "User Not Found" });
+
+        // now, check and match the refresh token
+        if (!user.refreshToken) return apiResponse({ response: res, statusCode: StatusCode.Unauthorized, message: "Please login by providing credentials" });
+        if (user.refreshToken !== refreshToken) return apiResponse({ response: res, statusCode: StatusCode.Unauthorized, message: "Please login by providing credentials" });
+
+        // payload for tokens and generate a new access token
+        const payloadData: IPayloadData = {
+            user: {
+                id: userId,
+            }
+        } 
+        const accessToken = generateToken({ payloadData, tokenType: PossibleTokenTypes.ACCESS_TOKEN });
+
+        // user logged in successfully
+        return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Logged in Successfully", data: { accessToken, refreshToken, fullName: user.fullName } });
+
+    } catch (error) {
+
+        // other unrecogonized errors
+        return apiResponse({ response: res, statusCode: StatusCode.InternalServerError, message: "Internal Server Error", error });
+    }
+}
+
+export { registerUser, loginUser, logoutUser, getCurrentUser, loginViaTokens };
