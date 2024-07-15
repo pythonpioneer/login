@@ -32,7 +32,6 @@ function fetchLoggedinUserViaRefreshToken(req: Request, res: Response, next: Nex
 
         // Handle other unrecognized errors
         return apiResponse({ response: res, statusCode: StatusCode.InternalServerError, message: "Something went wrong while validating auth token", error });
-
     }
 }
 
@@ -53,8 +52,17 @@ function fetchLoggedinUserViaAccessToken(req: Request, res: Response, next: Next
 
     } catch (error) {
         
-        // unrecogonized errors
-        return apiResponse({ response: res, statusCode: StatusCode.InternalServerError, message: "Something went Wrong while validating auth token", error });
+        // Handle specific token verification errors
+        if (error instanceof Error) {
+            let errorMessage = error.message || 'Token verification failed';
+            if (error.message.includes('expired')) {
+                errorMessage = 'Access token expired. Please log in again.';
+            }
+            return apiResponse({ response: res, statusCode: StatusCode.Unauthorized, message: errorMessage });
+        }
+
+        // Handle other unrecognized errors
+        return apiResponse({ response: res, statusCode: StatusCode.InternalServerError, message: "Something went wrong while validating auth token", error });
     }
 }
 

@@ -1,10 +1,10 @@
 import { Response } from "express";
-import { IResponse } from "./interfaces";
+import { IApiResponse, IResponse } from "./interfaces";
 import { COOKIE_AGE } from "../secure/constants";
 
 
 // to send the response
-const apiResponse = ({ response, statusCode, message, data, error, user }: IResponse): Response => {
+const apiResponse = ({ response, statusCode, message, data, error, user, info }: IResponse): Response<IApiResponse> => {
 
     // when data exists then only inject cookies
     if (data) {
@@ -21,7 +21,7 @@ const apiResponse = ({ response, statusCode, message, data, error, user }: IResp
     }
 
     // send the response also with json
-    return response.status(statusCode).json({ statusCode, message, data, error, user });
+    return response.status(statusCode).json({ statusCode, message, data, error, user, info });
 }
 
 // exporting the response method

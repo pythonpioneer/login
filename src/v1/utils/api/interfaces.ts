@@ -14,6 +14,9 @@ interface IResponse {
     user?: IScecuredUserFields;
 }
 
+// returning response from apiResponse
+type IApiResponse = Omit<IResponse, 'response'>;
+
 // structure for the response when signing
 interface ISignInResponse {
     accessToken: Token;
@@ -24,4 +27,4 @@ interface ISignInResponse {
 type IScecuredUserFields = Omit<IUser, 'password' | 'refreshToken'>;
 
 // exporting all interfaces
-export { IResponse, ISignInResponse, IScecuredUserFields };
+export { IResponse, ISignInResponse, IScecuredUserFields, IApiResponse };

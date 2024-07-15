@@ -9,7 +9,7 @@ import { comparePassword } from '../utils/secure/password';
 import { Token } from '../models/interfaces';
 
 
-// to create a new users or register users
+// to create a new users or register users (token not required)
 const registerUser = async (req: Request, res: Response): Promise<Response<IResponse>> => {
     try {
         // fetching the data from the request body
@@ -61,7 +61,7 @@ const registerUser = async (req: Request, res: Response): Promise<Response<IResp
     }
 }
 
-// to login users through email and password
+// to login users through email and password (token not required)
 const loginUser = async (req: Request, res: Response): Promise<Response<IResponse>> => {
     try {
         // fetching data from request body and cookies
@@ -99,7 +99,7 @@ const loginUser = async (req: Request, res: Response): Promise<Response<IRespons
     }
 }
 
-// to logout the user, only refresh token required
+// to logout the user, only refresh token required (refresh token required)
 const logoutUser = async (req: Request, res: Response): Promise<Response<IResponse>> => {
     try {
         // @ts-ignore // fetching user information from request and fetch the user
@@ -129,7 +129,7 @@ const logoutUser = async (req: Request, res: Response): Promise<Response<IRespon
     }
 }
 
-// to fetch the logged in user details
+// to fetch the logged in user details (access token required)
 const getCurrentUser = async (req: Request, res: Response): Promise<Response<IResponse>> => {
     try {
         // @ts-ignore // fetching user information from request and fetch the user
@@ -148,7 +148,7 @@ const getCurrentUser = async (req: Request, res: Response): Promise<Response<IRe
     }
 }
 
-// to login through refresh token
+// to login through refresh token (refresh token required)
 const loginViaTokens = async (req: Request, res: Response): Promise<Response<IResponse>> => {
     try {
         // @ts-ignore // fetching user information from request and fetch the user
@@ -180,4 +180,39 @@ const loginViaTokens = async (req: Request, res: Response): Promise<Response<IRe
     }
 }
 
-export { registerUser, loginUser, logoutUser, getCurrentUser, loginViaTokens };
+// to delete the existing user (refresh token required)
+const deleteUser = async (req: Request, res: Response): Promise<Response<IResponse>> => {
+    try {
+        // @ts-ignore // fetch data from the request body
+        const userId = req?.userId;
+        const password = req.body?.password;
+        const refreshToken = req.cookies?.refreshToken;
+
+        // fetch the user info
+        const user = await User.findById(userId);
+        if (!user) return apiResponse({ response: res, statusCode: StatusCode.NotFound, message: "User Not Found" });
+
+        // now, check and match the refresh token, so no old tokens can access the delete request
+        if (!user.refreshToken) return apiResponse({ response: res, statusCode: StatusCode.Unauthorized, message: "Please login by providing credentials" });
+        if (user.refreshToken !== refreshToken) return apiResponse({ response: res, statusCode: StatusCode.Unauthorized, message: "Please login by providing credentials" });
+
+        // compare the user password
+        const isPasswordMatched = await comparePassword(password, user.password);
+        if (!isPasswordMatched) return apiResponse({ response: res, statusCode: StatusCode.Unauthorized, message: "Invalid Credentials" });
+
+        // now, delete the user
+        const deletedUser = await User.findByIdAndDelete(userId).select('-password -refreshToken')
+        if (!deletedUser) return apiResponse({ response: res, statusCode: StatusCode.NotFound, message: "User not found to during deletion" });
+
+        // user deleted successfully
+        return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Deleted Successfully", user: deletedUser });
+
+    } catch (error) {
+
+        // other unrecogonized errors
+        return apiResponse({ response: res, statusCode: StatusCode.InternalServerError, message: "Internal Server Error", error });
+    }
+}
+
+
+export { registerUser, loginUser, logoutUser, getCurrentUser, loginViaTokens, deleteUser };
