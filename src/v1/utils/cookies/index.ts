@@ -1,6 +1,6 @@
 import { Response } from "express";
+import { IResponse } from "../api/interfaces";
 import dotenv from "dotenv";
-import { IResponse, ISignInResponse } from "../api/interfaces";
 dotenv.config();
 
 
