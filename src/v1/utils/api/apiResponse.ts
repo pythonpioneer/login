@@ -1,6 +1,8 @@
 import { Response } from "express";
 import { IApiResponse, IResponse } from "./interfaces";
 import { COOKIE_AGE } from "../secure/constants";
+import dotenv from "dotenv";
+dotenv.config();
 
 
 // to send the response
@@ -16,6 +18,7 @@ const apiResponse = ({ response, statusCode, message, data, error, user, info }:
                 maxAge: COOKIE_AGE,
                 secure: true,
                 signed: true,
+                path: process.env?.COOKIE_PATH || '/',  // update the path in future
             });
         });
     }

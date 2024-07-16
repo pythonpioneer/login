@@ -7,6 +7,7 @@ import apiResponse from '../utils/api/apiResponse';
 import StatusCode from '../../statusCodes';
 import { comparePassword } from '../utils/secure/password';
 import { Token } from '../models/interfaces';
+import { deleteCookies } from '../utils/cookies';
 
 
 // to create a new users or register users (token not required)
@@ -117,8 +118,8 @@ const logoutUser = async (req: Request, res: Response): Promise<Response<IRespon
         user.refreshToken = null;
         await user.save({ validateBeforeSave: false });
 
-        res.clearCookie('refreshToken');
-        res.clearCookie('accessToken');
+        // now, delete unnecessary cookies
+        deleteCookies(res, 'refreshToken', 'accessToken', 'fullName');
 
         return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User logged out Successfully!" });
         
@@ -137,6 +138,9 @@ const getCurrentUser = async (req: Request, res: Response): Promise<Response<IRe
 
         const user = await User.findById(userId)?.select('-refreshToken -password');
         if (!user) return apiResponse({ response: res, statusCode: StatusCode.NotFound, message: "User Not Found" });
+
+        // if user is logged in
+        if (!user.refreshToken) return apiResponse({ response: res, statusCode: StatusCode.Forbidden, message: "Login To fetch user information." });
 
         // now, send the user
         return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Found", user });
@@ -199,6 +203,9 @@ const deleteUser = async (req: Request, res: Response): Promise<Response<IRespon
         // compare the user password
         const isPasswordMatched = await comparePassword(password, user.password);
         if (!isPasswordMatched) return apiResponse({ response: res, statusCode: StatusCode.Unauthorized, message: "Invalid Credentials" });
+
+        // now, delete unnecessary cookies
+        deleteCookies(res, 'refreshToken', 'accessToken', 'fullName');
 
         // now, delete the user
         const deletedUser = await User.findByIdAndDelete(userId).select('-password -refreshToken')
