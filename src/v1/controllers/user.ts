@@ -205,7 +205,7 @@ const deleteUser = async (req: Request, res: Response): Promise<Response<IRespon
         if (!isPasswordMatched) return apiResponse({ response: res, statusCode: StatusCode.Unauthorized, message: "Invalid Credentials" });
 
         // now, delete unnecessary cookies
-        deleteCookies(res, 'refreshToken', 'accessToken', 'fullName');
+        deleteCookies(res, 'accessToken', 'refreshToken', 'fullName');
 
         // now, delete the user
         const deletedUser = await User.findByIdAndDelete(userId).select('-password -refreshToken')
