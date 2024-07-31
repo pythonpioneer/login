@@ -90,6 +90,8 @@ const loginUser = async (req: Request, res: Response): Promise<Response<IRespons
         user.refreshToken = refreshToken;
         user.save({ validateBeforeSave: false });
 
+        console.log({req})
+
         // user logged in successfully
         return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Logged in Successfully", data: { accessToken, refreshToken, fullName: user.fullName } });
         
