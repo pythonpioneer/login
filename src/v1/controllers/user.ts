@@ -6,8 +6,9 @@ import { IResponse } from '../utils/api/interfaces';
 import apiResponse from '../utils/api/apiResponse';
 import StatusCode from '../../statusCodes';
 import { comparePassword } from '../utils/secure/password';
-import { Token } from '../models/interfaces';
+import { IUpdatedUser, IUser, Token } from '../models/interfaces';
 import { deleteCookies } from '../utils/cookies';
+import { IUserCookieData } from '../utils/cookies/interfaces';
 
 
 // to create a new users or register users (token not required)
@@ -223,5 +224,59 @@ const deleteUser = async (req: Request, res: Response): Promise<Response<IRespon
     }
 }
 
+// to update the user information
+const updateUserInformation = async (req: Request, res: Response): Promise<Response<IResponse>> => {
+    try {
 
-export { registerUser, loginUser, logoutUser, getCurrentUser, loginViaTokens, deleteUser };
+        // @ts-ignore // fetching data from request body
+        const userId = req?.userId;
+        const { email, password, fullName } = req.body;
+
+        // fetch the user info
+        const user = await User.findById(userId);
+        if (!user) return apiResponse({ response: res, statusCode: StatusCode.NotFound, message: "User Not Found" });
+        
+        // now, create the new user object with updated fields
+        const updatedUserInfo: IUpdatedUser = {};
+
+        if (email) updatedUserInfo["email"] = email;
+        if (password) updatedUserInfo["password"] = password;  // password will be hashed by pre-hooks
+        if (fullName) updatedUserInfo["fullName"] = fullName;
+
+        // to store the cookies information
+        let cookiesData: IUserCookieData;
+
+        // if we updated the password then only generate new tokens
+        if (password) {
+            
+            const payloadData: IPayloadData = { user: { id: userId } };
+            const accessToken = generateToken({ payloadData, tokenType: PossibleTokenTypes.ACCESS_TOKEN });
+            const refreshToken = generateToken({ payloadData, tokenType: PossibleTokenTypes.REFRESH_TOKEN });
+
+            // now, update these information inside the updatedUserInfo
+            updatedUserInfo["refreshToken"] = refreshToken;
+
+            // also update these information on cookies
+            cookiesData = { accessToken, refreshToken, fullName }
+        }
+        else {
+
+            // only full name need to update in the cookies
+            cookiesData = { fullName };
+        }
+
+        // now, update the user
+        const updatedUser = await User.findByIdAndUpdate(userId, { $set: updatedUserInfo }, { new: true });
+        if (!updatedUser) return apiResponse({ response: res, statusCode: StatusCode.InternalServerError, message: "User not updated" });
+
+        // user updated successfully
+        return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User updated successfully", user: updatedUser, data: cookiesData });
+
+    } catch (error) {
+
+        // other unrecogonized errors
+        return apiResponse({ response: res, statusCode: StatusCode.InternalServerError, message: "Internal Server Error", error });
+    }
+}
+
+export { registerUser, loginUser, logoutUser, getCurrentUser, loginViaTokens, deleteUser, updateUserInformation };

@@ -19,5 +19,13 @@ interface IUser extends Document {
     updatedAt: Date;
 }
 
+// fields that can be updated by the user
+interface IUpdatedUser {
+    email?: Email;
+    password?: Password;
+    fullName?: FullName;
+    refreshToken?: Token;
+}
+
 // exporting all the interfaces
-export { IUser, Email, Password, FullName, Token };
+export { IUser, Email, Password, FullName, Token, IUpdatedUser };

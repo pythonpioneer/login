@@ -1,6 +1,7 @@
 import { Response } from "express";
 import StatusCode from "../../../statusCodes";
 import { FullName, IUser, Token } from "../../models/interfaces";
+import { IUserCookieData } from "../cookies/interfaces";
 
 // response structure
 interface IResponse {
@@ -9,7 +10,7 @@ interface IResponse {
     message: string;
     info?: string;
 
-    data?: ISignInResponse;
+    data?: ISignInResponse | IUserCookieData;
     error?: any;
     user?: IScecuredUserFields;
 }
