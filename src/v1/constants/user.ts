@@ -27,9 +27,9 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   - Minimum length is 6 characters
 */
 const PASSWORD_REGEX = new RegExp(
-	"^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[\\W_])[^\s]{" +
-	USER_FIELD_LENGTH_RESTRICTIONS.passwordMinLength +
-	",}$"
+  "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[\\W_])[^\\s]{" +
+  USER_FIELD_LENGTH_RESTRICTIONS.passwordMinLength +
+  ",}$"
 );
 
 // exporting all constants
