@@ -119,7 +119,9 @@ const logoutUser = async (req: Request, res: Response): Promise<Response<IRespon
     try {
         // @ts-ignore // fetching user information from request and fetch the user
         const userId = req.userId;
-        const refreshToken = req.cookies?.refreshToken;
+
+        // @ts-ignore  // fetching token from the request as we embed the tokens in the request directly
+        const refreshToken = req.refreshToken;
 
         const user = await User.findById(userId);
         if (!user) return apiResponse({ response: res, statusCode: StatusCode.NotFound, message: "User Not Found" });
@@ -171,7 +173,9 @@ const loginViaTokens = async (req: Request, res: Response): Promise<Response<IRe
     try {
         // @ts-ignore // fetching user information from request and fetch the user
         const userId = req.userId;
-        const refreshToken = req.cookies?.refreshToken;
+        
+        // @ts-ignore  // fetching token from the request as we embed the tokens in the request directly
+        const refreshToken = req.refreshToken;
 
         const user = await User.findById(userId);
         if (!user) return apiResponse({ response: res, statusCode: StatusCode.NotFound, message: "User Not Found" });
@@ -211,7 +215,9 @@ const deleteUser = async (req: Request, res: Response): Promise<Response<IRespon
         // @ts-ignore // fetch data from the request body
         const userId = req?.userId;
         const password = req.body?.password;
-        const refreshToken = req.cookies?.refreshToken;
+        
+        // @ts-ignore  // fetching token from the request as we embed the tokens in the request directly
+        const refreshToken = req.refreshToken;
 
         // fetch the user info
         const user = await User.findById(userId);
@@ -292,11 +298,12 @@ const updateUserInformation = async (req: Request, res: Response): Promise<Respo
 // to update the user password (refresh token required)
 const updateUserPassword = async (req: Request, res: Response): Promise<Response<IResponse>> => {
     try {
-        
         // @ts-ignore // fetching data from request body
         const userId = req?.userId;
         const { password } = req.body;
-        const refreshToken = req.cookies?.refreshToken;
+        
+        // @ts-ignore  // fetching token from the request as we embed the tokens in the request directly
+        const refreshToken = req.refreshToken;
 
         // fetch the user info
         const user = await User.findById(userId);

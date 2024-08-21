@@ -7,8 +7,9 @@ import { PossibleTokenTypes, verifyToken } from "../utils/secure/tokens";
 // to fetch the user id from the refresh token
 function fetchLoggedinUserViaRefreshToken(req: Request, res: Response, next: NextFunction) {
     try {
-        // fetch the token from the cookie
-        const refreshToken = req.cookies?.refreshToken;
+        // fetch the token from the cookie or from the headers, we are fetching token from the headers in multiple ways because the headers are case-insensitive
+        const refreshToken = req.cookies?.refreshToken || req.headers["refreshToken"] || req.headers['refreshtoken'];
+
         if (!refreshToken) return apiResponse({ response: res, statusCode: StatusCode.NotFound, message: "Authentication token is missing" });
 
         // now, validate the token and embed the userId inside the request
@@ -17,6 +18,10 @@ function fetchLoggedinUserViaRefreshToken(req: Request, res: Response, next: Nex
 
         // @ts-ignore
         req.userId = payloadData.user.id;
+
+        // @ts-ignore // also embed the refresh token in the request 
+        req.refreshToken = refreshToken;
+        
         return next();
 
     } catch (error) {
@@ -38,8 +43,8 @@ function fetchLoggedinUserViaRefreshToken(req: Request, res: Response, next: Nex
 // to fetch the user id from the access token
 function fetchLoggedinUserViaAccessToken(req: Request, res: Response, next: NextFunction) {
     try {
-        // fetch the token from the cookie
-        const accessToken = req.cookies?.accessToken;
+        // fetch the token from the cookie or from the headers, we are fetching token from the headers in multiple ways because the headers are case-insensitive
+        const accessToken = req.cookies?.accessToken || req.headers["accessToken"] || req.headers["accesstoken"];
         if (!accessToken) return apiResponse({ response: res, statusCode: StatusCode.NotFound, message: "Authentication token is missing" });
 
         // now, validate the token and embed the userId inside the request
@@ -48,6 +53,10 @@ function fetchLoggedinUserViaAccessToken(req: Request, res: Response, next: Next
 
         // @ts-ignore
         req.userId = payloadData.user.id;
+
+        // @ts-ignore  // also embed the access token in the request
+        req.accessToken = accessToken;
+
         return next();
 
     } catch (error) {
