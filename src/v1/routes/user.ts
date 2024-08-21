@@ -4,7 +4,6 @@ import validateValidationRules, { RequestData } from '../middlewares/validationM
 import { loginSchema, passwordValidationSchema, registrationSchema, updateUserInfoSchema } from '../validationSchema/user';
 import { loginUser, logoutUser, registerUser, getCurrentUser, loginViaTokens, deleteUser, updateUserInformation, updateUserPassword } from '../controllers/user';
 import { fetchLoggedinUserViaAccessToken, fetchLoggedinUserViaRefreshToken } from '../middlewares/validateUser';
-import { passwordValidation } from '../validationSchema/userFields';
 
 
 // creating router for the routes
