@@ -44,7 +44,7 @@ const apiResponse = ({ response, statusCode, message, data, error, user, info }:
     }
 
     // send the response also with json
-    return response.status(statusCode).json({ statusCode, message, data, error, user: { fullName: userFullName, ...data }, info });
+    return response.status(statusCode).json({ statusCode, message, data, error, user: userFullName && { fullName: userFullName, ...data }, info });
 }
 
 // filter the user object to only send required fields
