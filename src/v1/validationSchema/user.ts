@@ -21,5 +21,10 @@ const updateUserInfoSchema = z.object({
     email: emailValidation.optional(),
 });
 
+// schema to validate the password
+const passwordValidationSchema = z.object({
+    password: passwordValidation
+});
+
 // export schemas
-export { registrationSchema, loginSchema, updateUserInfoSchema };
+export { registrationSchema, loginSchema, updateUserInfoSchema, passwordValidationSchema };

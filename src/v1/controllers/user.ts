@@ -212,7 +212,7 @@ const deleteUser = async (req: Request, res: Response): Promise<Response<IRespon
 
         // now, delete the user
         const deletedUser = await User.findByIdAndDelete(userId).select('-password -refreshToken')
-        if (!deletedUser) return apiResponse({ response: res, statusCode: StatusCode.NotFound, message: "User not found to during deletion" });
+        if (!deletedUser) return apiResponse({ response: res, statusCode: StatusCode.NotFound, message: "User not found during deletion" });
 
         // user deleted successfully
         return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Deleted Successfully", user: deletedUser });
