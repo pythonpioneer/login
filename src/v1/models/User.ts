@@ -15,23 +15,23 @@ const UserSchema: Schema<IUser> = new Schema({
         unique: true,
         trim: true,
         lowercase: true,
-        match: [ EMAIL_REGEX, 'Use a valid Email address.' ],
-        max: [ emailMaxLength, `Email length can not be longer than ${emailMaxLength} characters.` ]
-    }, 
+        match: [EMAIL_REGEX, 'Use a valid Email address.'],
+        max: [emailMaxLength, `Email length can not be longer than ${emailMaxLength} characters.`]
+    },
     password: {
         type: String,
         required: true,
         trim: true,
-        match: [ PASSWORD_REGEX, 'Use a valid Password.' ],
-        min: [ passwordMinLength, `Password must be atleast ${passwordMinLength} characters long.` ],
-        max: [ passwordMaxLength, `Password can not be longer than ${passwordMaxLength} characters.` ]
+        match: [PASSWORD_REGEX, 'Use a valid Password.'],
+        min: [passwordMinLength, `Password must be atleast ${passwordMinLength} characters long.`],
+        max: [passwordMaxLength, `Password can not be longer than ${passwordMaxLength} characters.`]
     },
     fullName: {
         type: String,
         required: true,
         trim: true,
-        min: [ fullNameMinLength, `FullName must be atleast ${fullNameMinLength} character long.` ],
-        max: [ fullNameMaxLength, `FullName can not be longer than ${fullNameMaxLength} characters.` ]
+        min: [fullNameMinLength, `FullName must be atleast ${fullNameMinLength} character long.`],
+        max: [fullNameMaxLength, `FullName can not be longer than ${fullNameMaxLength} characters.`]
     },
     refreshToken: {
         type: String,
@@ -42,12 +42,21 @@ const UserSchema: Schema<IUser> = new Schema({
 // implementing hooks to encrypt password just before saving the password inside the database
 UserSchema.pre<IUser>("save", async function (next) {
 
-    // if password is not modified, then don't encrypt the password
-    if (!this.isModified("password")) return next();
+    // `this` is the Mongoose document
+    const user = this;
 
-    // if user set the new password or modified the password then encrypt the password
-    this.password = await generatePassword(this.password);
-    return next();
+    // If the password is not modified, proceed to the next middleware
+    if (!user.isModified('password')) return next();
+
+    try {
+        // If user set a new password or modified the password, encrypt it
+        user.password = await generatePassword(user.password);
+        next(); 
+    } catch (err) {
+        if (err instanceof Error)
+            next(err);
+        else next();
+    }
 });
 
 // export the user model

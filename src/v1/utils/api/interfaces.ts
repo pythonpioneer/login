@@ -1,6 +1,6 @@
 import { Response } from "express";
 import StatusCode from "../../../statusCodes";
-import { FullName, IUser, Token } from "../../models/interfaces";
+import { Email, FullName, IUser, Token } from "../../models/interfaces";
 import { IUserCookieData } from "../cookies/interfaces";
 
 // response structure
@@ -12,7 +12,7 @@ interface IResponse {
 
     data?: ISignInResponse | IUserCookieData;
     error?: any;
-    user?: IScecuredUserFields;
+    user?: IUser;
 }
 
 // returning response from apiResponse
@@ -25,7 +25,9 @@ interface ISignInResponse {
     fullName: FullName;
 }
 
-type IScecuredUserFields = Omit<IUser, 'password' | 'refreshToken'>;
+type IScecuredUserFields = Pick<IUser, 'fullName' | 'email' | 'refreshToken' | 'updatedAt' | 'createdAt'> & {
+    accessToken?: Token;
+}
 
 // exporting all interfaces
 export { IResponse, ISignInResponse, IScecuredUserFields, IApiResponse };

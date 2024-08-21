@@ -139,7 +139,7 @@ const getCurrentUser = async (req: Request, res: Response): Promise<Response<IRe
         // @ts-ignore // fetching user information from request and fetch the user
         const userId = req.userId;
 
-        const user = await User.findById(userId)?.select('-refreshToken -password');
+        const user = await User.findById(userId)?.select('-password');
         if (!user) return apiResponse({ response: res, statusCode: StatusCode.NotFound, message: "User Not Found" });
 
         // if user is logged in
@@ -224,46 +224,38 @@ const deleteUser = async (req: Request, res: Response): Promise<Response<IRespon
     }
 }
 
-// to update the user information
+// to update the user information (access token required)
 const updateUserInformation = async (req: Request, res: Response): Promise<Response<IResponse>> => {
     try {
 
         // @ts-ignore // fetching data from request body
         const userId = req?.userId;
-        const { email, password, fullName } = req.body;
+        const { email, fullName } = req.body;
 
         // fetch the user info
         const user = await User.findById(userId);
         if (!user) return apiResponse({ response: res, statusCode: StatusCode.NotFound, message: "User Not Found" });
-        
+
         // now, create the new user object with updated fields
         const updatedUserInfo: IUpdatedUser = {};
 
-        if (email) updatedUserInfo["email"] = email;
-        if (password) updatedUserInfo["password"] = password;  // password will be hashed by pre-hooks
+        if (email) {
+
+            // if the given email already exists
+            const userWithGivenEmail = await User.findOne({ email });
+            if (userWithGivenEmail) return apiResponse({ response: res, statusCode: StatusCode.Conflict, message: "User with this email already exists" });
+
+            // if user with this email doesn't exist
+            updatedUserInfo["email"] = email;
+        }
         if (fullName) updatedUserInfo["fullName"] = fullName;
 
+        // when there is nothing to update
+        const isUpdatedUserInfoEmpty = Object.keys(updatedUserInfo).length === 0;
+        if (isUpdatedUserInfoEmpty) return apiResponse({ response: res, statusCode: StatusCode.UnprocessableEntity, message: "There is nothing to update" });
+
         // to store the cookies information
-        let cookiesData: IUserCookieData;
-
-        // if we updated the password then only generate new tokens
-        if (password) {
-            
-            const payloadData: IPayloadData = { user: { id: userId } };
-            const accessToken = generateToken({ payloadData, tokenType: PossibleTokenTypes.ACCESS_TOKEN });
-            const refreshToken = generateToken({ payloadData, tokenType: PossibleTokenTypes.REFRESH_TOKEN });
-
-            // now, update these information inside the updatedUserInfo
-            updatedUserInfo["refreshToken"] = refreshToken;
-
-            // also update these information on cookies
-            cookiesData = { accessToken, refreshToken, fullName }
-        }
-        else {
-
-            // only full name need to update in the cookies
-            cookiesData = { fullName };
-        }
+        let cookiesData: IUserCookieData = { fullName };
 
         // now, update the user
         const updatedUser = await User.findByIdAndUpdate(userId, { $set: updatedUserInfo }, { new: true });

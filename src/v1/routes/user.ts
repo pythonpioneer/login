@@ -28,7 +28,7 @@ router.get('/', fetchLoggedinUserViaAccessToken, getCurrentUser);
 // Route 6: To login through tokens: '/api/v1/user/fast-login' [using GET] (login not required)
 router.post('/fast-login', fetchLoggedinUserViaRefreshToken, loginViaTokens);
 
-// Route 7: To update the user information: '/api/v1/user/' [using PUT] (login required)
+// Route 7: To update the user information (except password): '/api/v1/user/' [using PUT] (login required)
 router.put('/', validateValidationRules(updateUserInfoSchema, RequestData.BODY), fetchLoggedinUserViaAccessToken, updateUserInformation);
 
 // exporting the router object

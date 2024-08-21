@@ -10,6 +10,7 @@ enum StatusCode {
     NotFound = 404,
     MethodNotAllowed = 405,
     Conflict = 409,
+    UnprocessableEntity = 422,
     InternalServerError = 500,
     NotImplemented = 501,
     BadGateway = 502,

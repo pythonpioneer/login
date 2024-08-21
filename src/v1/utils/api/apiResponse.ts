@@ -1,7 +1,8 @@
 import { Response } from "express";
-import { IApiResponse, IResponse } from "./interfaces";
+import { IApiResponse, IResponse, IScecuredUserFields } from "./interfaces";
 import { COOKIE_AGE } from "../secure/constants";
 import dotenv from "dotenv";
+import { IUser, Token } from "../../models/interfaces";
 dotenv.config();
 
 
@@ -23,9 +24,34 @@ const apiResponse = ({ response, statusCode, message, data, error, user, info }:
         });
     }
 
+    // filtering user
+    let filteredUserObject: IScecuredUserFields;
+    if (user) {
+        if (data) filteredUserObject = filterUserObject(user, data.accessToken);
+        else filteredUserObject = filterUserObject(user);
+
+        return response.status(statusCode).json({ statusCode, message, data, error, user: filteredUserObject, info });
+    }
+
     // send the response also with json
     return response.status(statusCode).json({ statusCode, message, data, error, user, info });
 }
 
+// filter the user object to only send required fields
+const filterUserObject = (user: IUser, accessToken?: Token) => {
+
+    const filteredUserObject: IScecuredUserFields = {
+        fullName: user.fullName,
+        email: user.email,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        refreshToken: accessToken ? user.refreshToken : null,
+        accessToken: accessToken
+    }
+
+    return filteredUserObject;
+}
+
 // exporting the response method
 export default apiResponse;
+export { filterUserObject }

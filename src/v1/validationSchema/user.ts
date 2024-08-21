@@ -19,7 +19,6 @@ const loginSchema = z.object({
 const updateUserInfoSchema = z.object({
     fullName: fullNameValidation.optional(),
     email: emailValidation.optional(),
-    password: passwordValidation.optional()
 });
 
 // export schemas

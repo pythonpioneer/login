@@ -21,9 +21,13 @@ interface IUser extends Document {
 
 // fields that can be updated by the user
 interface IUpdatedUser {
+
+    // these fields set by the client
     email?: Email;
     password?: Password;
     fullName?: FullName;
+
+    // this field set by the server
     refreshToken?: Token;
 }
 
