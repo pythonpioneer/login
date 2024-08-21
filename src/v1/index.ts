@@ -5,6 +5,15 @@ import { connectToMongo } from './db';
 // routes for the application
 import userRoutes from './routes/user';
 import noteRoutes from './routes/notes';
+import { Token } from './models/interfaces';
+
+declare module "express-serve-static-core" {
+	interface Request {
+		accessToken?: Token;
+		refreshToken?: Token;
+		userId?: string;
+	}
+}
 
 
 // connect with the mongodb atlas server

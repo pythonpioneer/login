@@ -117,10 +117,8 @@ const loginUser = async (req: Request, res: Response): Promise<Response<IRespons
 // to logout the user, only refresh token required (refresh token required)
 const logoutUser = async (req: Request, res: Response): Promise<Response<IResponse>> => {
     try {
-        // @ts-ignore // fetching user information from request and fetch the user
+        // fetching user information from request and fetch the user
         const userId = req.userId;
-
-        // @ts-ignore  // fetching token from the request as we embed the tokens in the request directly
         const refreshToken = req.refreshToken;
 
         const user = await User.findById(userId);
@@ -149,7 +147,7 @@ const logoutUser = async (req: Request, res: Response): Promise<Response<IRespon
 // to fetch the logged in user details (access token required)
 const getCurrentUser = async (req: Request, res: Response): Promise<Response<IResponse>> => {
     try {
-        // @ts-ignore // fetching user information from request and fetch the user
+        // fetching user information from request and fetch the user
         const userId = req.userId;
 
         const user = await User.findById(userId)?.select('-password');
@@ -171,10 +169,8 @@ const getCurrentUser = async (req: Request, res: Response): Promise<Response<IRe
 // to login through refresh token (refresh token required)
 const loginViaTokens = async (req: Request, res: Response): Promise<Response<IResponse>> => {
     try {
-        // @ts-ignore // fetching user information from request and fetch the user
+        // fetching user information from request and fetch the user
         const userId = req.userId;
-        
-        // @ts-ignore  // fetching token from the request as we embed the tokens in the request directly
         const refreshToken = req.refreshToken;
 
         const user = await User.findById(userId);
@@ -187,7 +183,7 @@ const loginViaTokens = async (req: Request, res: Response): Promise<Response<IRe
         // payload for tokens and generate a new access token
         const payloadData: IPayloadData = {
             user: {
-                id: userId,
+                id: user.id,
             }
         } 
         const accessToken = generateToken({ payloadData, tokenType: PossibleTokenTypes.ACCESS_TOKEN });
@@ -212,11 +208,9 @@ const loginViaTokens = async (req: Request, res: Response): Promise<Response<IRe
 // to delete the existing user (refresh token required)
 const deleteUser = async (req: Request, res: Response): Promise<Response<IResponse>> => {
     try {
-        // @ts-ignore // fetch data from the request body
+        // fetch data from the request body
         const userId = req?.userId;
         const password = req.body?.password;
-        
-        // @ts-ignore  // fetching token from the request as we embed the tokens in the request directly
         const refreshToken = req.refreshToken;
 
         // fetch the user info
@@ -252,7 +246,7 @@ const deleteUser = async (req: Request, res: Response): Promise<Response<IRespon
 const updateUserInformation = async (req: Request, res: Response): Promise<Response<IResponse>> => {
     try {
 
-        // @ts-ignore // fetching data from request body
+        // fetching data from request body
         const userId = req?.userId;
         const { email, fullName } = req.body;
 
@@ -298,11 +292,9 @@ const updateUserInformation = async (req: Request, res: Response): Promise<Respo
 // to update the user password (refresh token required)
 const updateUserPassword = async (req: Request, res: Response): Promise<Response<IResponse>> => {
     try {
-        // @ts-ignore // fetching data from request body
+        // fetching data from request body
         const userId = req?.userId;
         const { password } = req.body;
-        
-        // @ts-ignore  // fetching token from the request as we embed the tokens in the request directly
         const refreshToken = req.refreshToken;
 
         // fetch the user info

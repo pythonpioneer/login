@@ -16,10 +16,8 @@ function fetchLoggedinUserViaRefreshToken(req: Request, res: Response, next: Nex
         const payloadData = verifyToken({ authToken: refreshToken, tokenType: PossibleTokenTypes.REFRESH_TOKEN });
         if (!payloadData) return apiResponse({ response: res, statusCode: StatusCode.Unauthorized, message: 'Token Verification failed' });
 
-        // @ts-ignore
+        // embed userId and refreshToken in the request
         req.userId = payloadData.user.id;
-
-        // @ts-ignore // also embed the refresh token in the request 
         req.refreshToken = refreshToken;
         
         return next();
@@ -51,10 +49,8 @@ function fetchLoggedinUserViaAccessToken(req: Request, res: Response, next: Next
         const payloadData = verifyToken({ authToken: accessToken, tokenType: PossibleTokenTypes.ACCESS_TOKEN });
         if (!payloadData) return apiResponse({ response: res, statusCode: StatusCode.Unauthorized, message: 'Token Verification failed' });
 
-        // @ts-ignore
+        // embed userId and accessToken in the request
         req.userId = payloadData.user.id;
-
-        // @ts-ignore  // also embed the access token in the request
         req.accessToken = accessToken;
 
         return next();
