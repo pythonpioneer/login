@@ -44,6 +44,7 @@ UserSchema.pre<IUser>("save", async function (next) {
 
     // `this` is the Mongoose document
     const user = this;
+    console.log("user: ", {user})
 
     // If the password is not modified, proceed to the next middleware
     if (!user.isModified('password')) return next();

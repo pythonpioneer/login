@@ -91,8 +91,6 @@ const loginUser = async (req: Request, res: Response): Promise<Response<IRespons
         user.refreshToken = refreshToken;
         user.save({ validateBeforeSave: false });
 
-        console.log({req})
-
         // user logged in successfully
         return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Logged in Successfully", data: { accessToken, refreshToken, fullName: user.fullName } });
         
@@ -271,4 +269,43 @@ const updateUserInformation = async (req: Request, res: Response): Promise<Respo
     }
 }
 
-export { registerUser, loginUser, logoutUser, getCurrentUser, loginViaTokens, deleteUser, updateUserInformation };
+// to update the user password (refresh token required)
+const updateUserPassword = async (req: Request, res: Response): Promise<Response<IResponse>> => {
+    try {
+        
+        // @ts-ignore // fetching data from request body
+        const userId = req?.userId;
+        const { password } = req.body;
+        const refreshToken = req.cookies?.refreshToken;
+
+        // fetch the user info
+        const user = await User.findById(userId);
+        if (!user) return apiResponse({ response: res, statusCode: StatusCode.NotFound, message: "User Not Found" });
+
+        // now, check and match the refresh token, so no old tokens can access the delete request
+        if (!user.refreshToken) return apiResponse({ response: res, statusCode: StatusCode.Unauthorized, message: "Please login by providing credentials" });
+        if (user.refreshToken !== refreshToken) return apiResponse({ response: res, statusCode: StatusCode.Unauthorized, message: "Please login by providing credentials" });
+
+        // now, create the new user object with updated fields, hashing the password using pre-hooks in mongoose-models
+        // `save prehook` only get triggered when we use `save` method on the model
+        const updatedUserInfo: IUpdatedUser = { password }
+
+        // when there is nothing to update, this code will not execute because this case is already handled by validation middlewares
+        const isUpdatedUserInfoEmpty = Object.keys(updatedUserInfo).length === 0;
+        if (isUpdatedUserInfoEmpty) return apiResponse({ response: res, statusCode: StatusCode.UnprocessableEntity, message: "There is nothing to update" });
+
+        // now, update the user, using save method
+        user.password = password;
+        user.save();
+
+        // user updated successfully
+        return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User's password updated successfully" });
+
+    } catch (error) {
+
+        // other unrecogonized errors
+        return apiResponse({ response: res, statusCode: StatusCode.InternalServerError, message: "Internal Server Error", error });
+    }
+}
+
+export { registerUser, loginUser, logoutUser, getCurrentUser, loginViaTokens, deleteUser, updateUserInformation, updateUserPassword };

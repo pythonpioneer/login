@@ -2,7 +2,7 @@
 import express from 'express';
 import validateValidationRules, { RequestData } from '../middlewares/validationMiddleware';
 import { loginSchema, passwordValidationSchema, registrationSchema, updateUserInfoSchema } from '../validationSchema/user';
-import { loginUser, logoutUser, registerUser, getCurrentUser, loginViaTokens, deleteUser, updateUserInformation } from '../controllers/user';
+import { loginUser, logoutUser, registerUser, getCurrentUser, loginViaTokens, deleteUser, updateUserInformation, updateUserPassword } from '../controllers/user';
 import { fetchLoggedinUserViaAccessToken, fetchLoggedinUserViaRefreshToken } from '../middlewares/validateUser';
 import { passwordValidation } from '../validationSchema/userFields';
 
@@ -20,7 +20,7 @@ router.post('/login', validateValidationRules(loginSchema, RequestData.BODY), lo
 router.post('/logout', fetchLoggedinUserViaRefreshToken, logoutUser);
 
 // Route 4: To delete the existing user: '/api/v1/user/' [using DELETE] (login required) 
-router.delete('/', validateValidationRules(passwordValidationSchema, RequestData.BODY), fetchLoggedinUserViaRefreshToken, deleteUser);  // something wrong in this code
+router.delete('/', validateValidationRules(passwordValidationSchema, RequestData.BODY), fetchLoggedinUserViaRefreshToken, deleteUser);
 
 // Route 5: To get the details of the current user: '/api/v1/user/' [using GET] (login required) (Access Token required)
 router.get('/', fetchLoggedinUserViaAccessToken, getCurrentUser);
@@ -32,7 +32,7 @@ router.post('/fast-login', fetchLoggedinUserViaRefreshToken, loginViaTokens);
 router.put('/', validateValidationRules(updateUserInfoSchema, RequestData.BODY), fetchLoggedinUserViaAccessToken, updateUserInformation);
 
 // Route 8: To update the user password: '/api/v1/user/password' [using PATCH] (login required) (Refresh Token required)
-router.patch('/password', validateValidationRules(passwordValidationSchema, RequestData.BODY), fetchLoggedinUserViaRefreshToken);
+router.patch('/password', validateValidationRules(passwordValidationSchema, RequestData.BODY), fetchLoggedinUserViaRefreshToken, updateUserPassword);
 
 // exporting the router object
 export default router;
