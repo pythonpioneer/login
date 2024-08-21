@@ -25,8 +25,10 @@ interface ISignInResponse {
     fullName: FullName;
 }
 
-type IScecuredUserFields = Pick<IUser, 'fullName' | 'email' | 'refreshToken' | 'updatedAt' | 'createdAt'> & {
+// structure for the response when user is authenticated, not including password and other information
+type IScecuredUserFields = Pick<IUser, 'fullName' | 'email' | 'updatedAt' | 'createdAt'> & {
     accessToken?: Token;
+    refreshToken?: Token;
 }
 
 // exporting all interfaces

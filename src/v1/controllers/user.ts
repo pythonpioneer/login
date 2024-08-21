@@ -6,9 +6,8 @@ import { IResponse } from '../utils/api/interfaces';
 import apiResponse from '../utils/api/apiResponse';
 import StatusCode from '../../statusCodes';
 import { comparePassword } from '../utils/secure/password';
-import { IUpdatedUser, IUser, Token } from '../models/interfaces';
+import { IUpdatedUser, Token } from '../models/interfaces';
 import { deleteCookies } from '../utils/cookies';
-import { IUserCookieData } from '../utils/cookies/interfaces';
 
 
 // to create a new users or register users (token not required)
@@ -47,8 +46,15 @@ const registerUser = async (req: Request, res: Response): Promise<Response<IResp
         user.refreshToken = refreshToken;
         user.save({ validateBeforeSave: false });
 
+        // user's information 
+        const data: IResponse["data"] = {
+            accessToken,
+            refreshToken,
+            fullName,
+        }
+
         // user created successfully
-        return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Created Successfully", data: { accessToken, refreshToken, fullName: user?.fullName || "No Name" } });
+        return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Created Successfully", data });
 
     } catch (error) {
 
@@ -91,8 +97,15 @@ const loginUser = async (req: Request, res: Response): Promise<Response<IRespons
         user.refreshToken = refreshToken;
         user.save({ validateBeforeSave: false });
 
+        // user's information 
+        const data: IResponse["data"] = {
+            accessToken,
+            refreshToken, 
+            fullName: user.fullName
+        }
+
         // user logged in successfully
-        return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Logged in Successfully", data: { accessToken, refreshToken, fullName: user.fullName } });
+        return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Logged in Successfully", data });
         
     } catch (error) {
         
@@ -120,7 +133,7 @@ const logoutUser = async (req: Request, res: Response): Promise<Response<IRespon
         await user.save({ validateBeforeSave: false });
 
         // now, delete unnecessary cookies
-        deleteCookies(res, 'refreshToken', 'accessToken', 'fullName');
+        deleteCookies(res, 'refreshToken', 'accessToken');
 
         return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User logged out Successfully!" });
         
@@ -175,8 +188,15 @@ const loginViaTokens = async (req: Request, res: Response): Promise<Response<IRe
         } 
         const accessToken = generateToken({ payloadData, tokenType: PossibleTokenTypes.ACCESS_TOKEN });
 
+        // user's information
+        const data: IResponse["data"] = {
+            accessToken,
+            refreshToken,
+            fullName: user.fullName,
+        }
+
         // user logged in successfully
-        return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Logged in Successfully", data: { accessToken, refreshToken, fullName: user.fullName } });
+        return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Logged in Successfully", data });
 
     } catch (error) {
 
@@ -206,7 +226,7 @@ const deleteUser = async (req: Request, res: Response): Promise<Response<IRespon
         if (!isPasswordMatched) return apiResponse({ response: res, statusCode: StatusCode.Unauthorized, message: "Invalid Credentials" });
 
         // now, delete unnecessary cookies
-        deleteCookies(res, 'accessToken', 'refreshToken', 'fullName');
+        deleteCookies(res, 'accessToken', 'refreshToken');
 
         // now, delete the user
         const deletedUser = await User.findByIdAndDelete(userId).select('-password -refreshToken')
@@ -234,6 +254,9 @@ const updateUserInformation = async (req: Request, res: Response): Promise<Respo
         const user = await User.findById(userId);
         if (!user) return apiResponse({ response: res, statusCode: StatusCode.NotFound, message: "User Not Found" });
 
+        // check that the user is still logged in
+        if (!user?.refreshToken) return apiResponse({ response: res, statusCode: StatusCode.Forbidden, message: "Please login by providing credentials" });
+
         // now, create the new user object with updated fields
         const updatedUserInfo: IUpdatedUser = {};
 
@@ -252,15 +275,12 @@ const updateUserInformation = async (req: Request, res: Response): Promise<Respo
         const isUpdatedUserInfoEmpty = Object.keys(updatedUserInfo).length === 0;
         if (isUpdatedUserInfoEmpty) return apiResponse({ response: res, statusCode: StatusCode.UnprocessableEntity, message: "There is nothing to update" });
 
-        // to store the cookies information
-        let cookiesData: IUserCookieData = { fullName };
-
         // now, update the user
         const updatedUser = await User.findByIdAndUpdate(userId, { $set: updatedUserInfo }, { new: true });
         if (!updatedUser) return apiResponse({ response: res, statusCode: StatusCode.InternalServerError, message: "User not updated" });
 
         // user updated successfully
-        return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User updated successfully", user: updatedUser, data: cookiesData });
+        return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User updated successfully", user: updatedUser });
 
     } catch (error) {
 
@@ -283,11 +303,11 @@ const updateUserPassword = async (req: Request, res: Response): Promise<Response
         if (!user) return apiResponse({ response: res, statusCode: StatusCode.NotFound, message: "User Not Found" });
 
         // now, check and match the refresh token, so no old tokens can access the delete request
-        if (!user.refreshToken) return apiResponse({ response: res, statusCode: StatusCode.Unauthorized, message: "Please login by providing credentials" });
-        if (user.refreshToken !== refreshToken) return apiResponse({ response: res, statusCode: StatusCode.Unauthorized, message: "Please login by providing credentials" });
+        if (!user.refreshToken) return apiResponse({ response: res, statusCode: StatusCode.Forbidden, message: "Please login by providing credentials" });
+        if (user.refreshToken !== refreshToken) return apiResponse({ response: res, statusCode: StatusCode.Forbidden, message: "Please login by providing credentials" });
 
         // now, create the new user object with updated fields, hashing the password using pre-hooks in mongoose-models
-        // `save prehook` only get triggered when we use `save` method on the model
+        // `save prehook` only get triggered when we use `save` method on the model to update the password/data
         const updatedUserInfo: IUpdatedUser = { password }
 
         // when there is nothing to update, this code will not execute because this case is already handled by validation middlewares
