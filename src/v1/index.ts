@@ -6,6 +6,7 @@ import { connectToMongo } from './db';
 import userRoutes from './routes/user';
 import { Token } from './models/interfaces';
 
+// extending the Request type
 declare module "express-serve-static-core" {
 	interface Request {
 		accessToken?: Token;
