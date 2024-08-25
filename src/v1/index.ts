@@ -4,7 +4,6 @@ import { connectToMongo } from './db';
 
 // routes for the application
 import userRoutes from './routes/user';
-import noteRoutes from './routes/notes';
 import { Token } from './models/interfaces';
 
 declare module "express-serve-static-core" {
@@ -24,7 +23,6 @@ const app = express();
 
 // available routes
 app.use('/user', userRoutes);
-app.use('/note', noteRoutes);
 
 // health check for the server
 app.get('/health', async (_: Request, res: Response) => {
