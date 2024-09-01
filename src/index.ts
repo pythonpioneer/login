@@ -12,13 +12,14 @@ import V2Routes from './v2'
 // loading environment variables and fetching information for the API
 dotenv.config();
 const PORT: number = parseInt(process.env?.PORT || '5100', 10);
-const APIPATH: string = process.env?.APIPATH || "apiasdf";
+const APIPATH: string = process.env?.APIPATH || "nopath";
+const COOKIE_SECRET_KEY = process.env?.COOKIE_SECRET_KEY;
 
 // express development environments and middlewares
 const app = express();
 app.use(express.json());
 app.use(cors());
-app.use(cookieParser(process.env?.COOKIE_SECRET_KEY));
+app.use(cookieParser(COOKIE_SECRET_KEY));
 
 // providing routes for all possible versions
 app.use(APIPATH + 'v1', V1Routes);
