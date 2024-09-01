@@ -16,8 +16,13 @@ beforeAll(() => {
 // Restore console statements and close the server after all tests
 afterAll(async () => {
     jest.restoreAllMocks();
-    await mongoose.connection.close(); // Ensure MongoDB connection is closed
+    await mongoose.connection.close(); // ensure MongoDB connection is closed
     server.close();
+});
+
+// reset all mocks before each test
+beforeEach(() => {
+    jest.resetAllMocks();
 });
 
 // Test suite for the registerUser route
@@ -56,11 +61,11 @@ describe("Register User Route", () => {
 
         describe("When password is not strong enough", () => {
 
-            it("should return status code 400 for weak password", async () => {
+            it("should return status code 400 for invalid password", async () => {
                 const response = await request(app).post(apiPath).send({
                     email: "johndoe@me.com",
                     fullName: "John Doe",
-                    password: "password"
+                    password: "password"  // validPassword: Password@123 (symbol, capital, small, number, length:6-20)
                 });
                 expect(response.status).toBe(400);
             });
@@ -93,7 +98,7 @@ describe("Register User Route", () => {
 
             // deleting the email after each test to set it as unique
             afterEach(async () => {
-                await User.deleteMany({ email: "johndoe@me.com" });
+                await User.findOneAndDelete({ email: "johndoe@me.com" });
             });
 
             // test the successful creation of a new user
@@ -112,10 +117,11 @@ describe("Register User Route", () => {
 
             it("should return status code 500", async () => {
 
-                // throwing an error while creating a new user
-                jest.spyOn(User, 'create').mockRejectedValue(new Error("Internal Server Error"));
-
-                const response = await request(app).post(apiPath).send({
+                jest.spyOn(User, 'create').mockImplementation(() => {
+                    throw new Error("Internal server Error");
+                });
+        
+                const response = await request(app).post('/api/v1/user/register').send({
                     email: "johndoe@me.com",
                     fullName: "John Doe",
                     password: "Password@123"
