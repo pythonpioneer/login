@@ -57,7 +57,7 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             fullName,
         };
         // user created successfully
-        return (0, apiResponse_1.default)({ response: res, statusCode: statusCodes_1.default.OK, message: "User Created Successfully", data });
+        return (0, apiResponse_1.default)({ response: res, statusCode: statusCodes_1.default.Created, message: "User Created Successfully", data });
     }
     catch (error) {
         // Type assertion to handle MongoDB duplicate key error

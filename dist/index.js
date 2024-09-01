@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.server = void 0;
 // importing requirements
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
@@ -42,6 +43,7 @@ app.get('/health', (_, res) => __awaiter(void 0, void 0, void 0, function* () {
 const server = app.listen(PORT, () => {
     console.log(`Server is running on port: ${PORT}`);
 });
+exports.server = server;
 // handling SIGTERM signal for graceful shutdown, when the process is stopped by a system signal
 process.on('SIGTERM', () => {
     console.log('SIGTERM signal received: closing HTTP server');
