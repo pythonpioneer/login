@@ -12,7 +12,7 @@ import V2Routes from './v2'
 // loading environment variables and fetching information for the API
 dotenv.config();
 const PORT: number = parseInt(process.env?.PORT || '5100', 10);
-const APIPATH: string = process.env?.APIPATH || "nopath";
+const APIPATH: string = process.env?.APIPATH || "/api/";
 const COOKIE_SECRET_KEY = process.env?.COOKIE_SECRET_KEY;
 
 // express development environments and middlewares
@@ -50,3 +50,6 @@ process.on('SIGINT', () => {
 		console.log('HTTP server closed. Process Terminated Manually.');
 	});
 });
+
+export default app;
+export { server };

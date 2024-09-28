@@ -20,7 +20,7 @@ declare module "express-serve-static-core" {
 connectToMongo();
 
 // implmenting routes for the API
-const app = express();
+const app = express.Router()
 
 // available routes
 app.use('/user', userRoutes);

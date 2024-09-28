@@ -54,7 +54,7 @@ const registerUser = async (req: Request, res: Response): Promise<Response<IResp
         }
 
         // user created successfully
-        return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Created Successfully", data });
+        return apiResponse({ response: res, statusCode: StatusCode.Created, message: "User Created Successfully", data });
 
     } catch (error) {
 
