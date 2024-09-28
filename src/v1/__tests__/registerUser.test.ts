@@ -138,8 +138,8 @@ describe("Register User Route", () => {
                 });
 
                 const response = await request(app).post('/api/v1/user/register').send({
-                    email: "johndoe@me.com",
-                    fullName: "John Doe",
+                    email: "hrk@me.com",
+                    fullName: "Hritik kumar sinha",
                     password: "Password@123"
                 });
                 expect(response.status).toBe(500);
