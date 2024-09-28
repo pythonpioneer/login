@@ -83,10 +83,22 @@ describe("Register User Route", () => {
 
         describe("When email already exists", () => {
 
+            beforeEach(async () => {
+                await User.create({
+                    email: "hritik.already.created@gmail.com",
+                    fullName: "Hritik",
+                    password: "Password@123"
+                });
+            });
+
+            afterEach(async () => {
+                await User.findOneAndDelete({ email: "hritik.already.created@gmail.com" });
+            });
+
             it("should return status code 409 for duplicate email", async () => {
 
                 const response = await request(app).post(apiPath).send({
-                    email: "hritikf@gmail.com",
+                    email: "hritik.already.created@gmail.com",
                     fullName: "John Doe",
                     password: "Password@123"
                 });
@@ -98,15 +110,15 @@ describe("Register User Route", () => {
 
             // deleting the email after each test to set it as unique
             afterEach(async () => {
-                await User.findOneAndDelete({ email: "johndoe@me.com" });
+                await User.findOneAndDelete({ email: "hrk@me.com" });
             });
 
             // test the successful creation of a new user
             it("should return status code 201", async () => {
 
                 const response = await request(app).post(apiPath).send({
-                    email: "johndoe@me.com",
-                    fullName: "John Doe",
+                    email: "hrk@me.com",
+                    fullName: "Hritik",
                     password: "Password@123"
                 });
                 expect(response.status).toBe(201);
@@ -117,10 +129,14 @@ describe("Register User Route", () => {
 
             it("should return status code 500", async () => {
 
-                jest.spyOn(User, 'create').mockImplementation(() => {
-                    throw new Error("Internal server Error");
+                // Mock User.create to throw an error
+                jest.spyOn(User, 'create').mockRejectedValueOnce(new Error("Internal server Error"));
+
+                // Also mock other potential queries like User.findOne
+                jest.spyOn(User, 'findOne').mockRejectedValueOnce(() => {
+                    throw new Error("Database error");
                 });
-        
+
                 const response = await request(app).post('/api/v1/user/register').send({
                     email: "johndoe@me.com",
                     fullName: "John Doe",
