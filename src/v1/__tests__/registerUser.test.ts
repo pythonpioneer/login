@@ -1,7 +1,29 @@
-import request from "supertest";
-import app, { server } from "../../index";
-import mongoose from "mongoose";
-import { User } from "../models/User";
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import mongoose from 'mongoose';
+import express from "express";
+import request from 'supertest'; // Assuming you're using supertest for HTTP assertions
+import app from '../../index'; // Assuming this is your Express app
+import { User } from '../models/User'; // Your user model
+
+
+let mongoServer: MongoMemoryServer;
+
+beforeAll(async () => {
+    mongoServer = await MongoMemoryServer.create();
+    const uri = mongoServer.getUri();
+
+    await mongoose.connect(uri);
+});
+
+afterAll(async () => {
+    await mongoose.disconnect();
+    await mongoServer.stop();
+});
+
+afterEach(async () => {
+    // Clean up database between tests
+    await User.deleteMany();
+});
 
 // Set a timeout for Jest
 jest.setTimeout(30000);
