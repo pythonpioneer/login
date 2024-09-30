@@ -8,7 +8,7 @@
         "dev": "nodemon src/index.ts",
         "build": "tsc",
         "prod": "npm run build && node dist/index.js",
-        "test:v1:integration": "npm run build && jest --verbose --detectOpenHandles --forceExit --testPathPattern='src/v1/__tests__'"
+        "test:v1:integration": "npm run build && jest --verbose --detectOpenHandles --forceExit --testPathPattern='src/v1/__tests__/.*\\.test\\.ts$'"
     },
     "author": "Hritik Kumar Sinha (pythonpioneer)",
     "license": "ISC",
