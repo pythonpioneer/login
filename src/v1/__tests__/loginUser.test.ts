@@ -1,6 +1,5 @@
 import request from "supertest";
 import app from "../../index";
-import mongoose from "mongoose";
 import { User } from "../models/User";
 import { setupTestDB } from "./test.setup";
 
@@ -79,7 +78,7 @@ describe("Login User Route", () => {
             afterEach(async () => {
                 await User.deleteOne({ email: userData.email });
             });
-            
+
             describe("when password is incorrect", () => {
                 
                 it("should return status code 401", async () => {
