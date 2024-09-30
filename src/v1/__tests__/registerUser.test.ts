@@ -1,29 +1,11 @@
-import request from "supertest";
-import app, { server } from "../../index";
-import mongoose from "mongoose";
-import { User } from "../models/User";
+import request from 'supertest'; // Assuming you're using supertest for HTTP assertions
+import app from '../../index'; // Assuming this is your Express app
+import { User } from '../models/User'; // Your user model
+import { setupTestDB } from './test.setup';
 
-// Set a timeout for Jest
-jest.setTimeout(30000);
 
-// Suppress console statements during tests
-beforeAll(() => {
-    jest.spyOn(console, 'log').mockImplementation(() => { });
-    jest.spyOn(console, 'warn').mockImplementation(() => { });
-    jest.spyOn(console, 'error').mockImplementation(() => { });
-});
-
-// Restore console statements and close the server after all tests
-afterAll(async () => {
-    jest.restoreAllMocks();
-    await mongoose.connection.close(); // ensure MongoDB connection is closed
-    server.close();
-});
-
-// reset all mocks before each test
-beforeEach(() => {
-    jest.resetAllMocks();
-});
+// Set up MongoDB in-memory server and mongoose connection
+setupTestDB();
 
 // Test suite for the registerUser route
 describe("Register User Route", () => {
