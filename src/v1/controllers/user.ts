@@ -126,6 +126,8 @@ const logoutUser = async (req: Request, res: Response): Promise<Response<IRespon
 
         // user already logged out
         if (!user.refreshToken) return apiResponse({ response: res, statusCode: StatusCode.OK, message: "User Already logged out" });
+
+        // this condition will occure when trying to logout using old refresh token but not expired.
         if (user.refreshToken !== refreshToken) return apiResponse({ response: res, statusCode: StatusCode.Forbidden, message: "Not allowed to logout" });
 
         // now, clear the tokens
