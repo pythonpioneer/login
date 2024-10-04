@@ -151,21 +151,30 @@ describe("Logout User Route", () => {
                             .set('Cookie', `refreshToken=${newRefreshToken}`)
                             .send();
 
+                        // hitting the login route again to make the current token old
+                        await request(app).post(loginRoute).send({
+                            email: userData.email,
+                            password: userData.password
+                        });
+
                         expect(response.status).toBe(200);
                     });
                 });
 
                 describe("when logging out with old refresh token", () => {
 
-                    it("should return status code 403", async () => {
+                    beforeEach(async () => {
 
-                        const oldRefreshToken = refreshToken;
-
-                        // hitting the login route again to make the current token old
+                        // now, make the request to the login route
                         await request(app).post(loginRoute).send({
                             email: userData.email,
                             password: userData.password
                         });
+                    })
+
+                    it("should return status code 403", async () => {
+
+                        const oldRefreshToken = refreshToken;
 
                         // now, make the request to the logout route
                         const response = await request(app).post(logoutRoute)
@@ -252,6 +261,31 @@ describe("Logout User Route", () => {
                 jest.restoreAllMocks();
 
                 expect(response.status).toBe(500);
+            });
+        });
+
+        describe("when user is not registered", () => {
+
+            it("Should return status code 401", async () => {
+
+                // register the user and delete the user after saving refresh token
+                const response = await User.create({ ...userData, email: 'pV9Jn@example.com' });
+
+                // testing the available fields
+                expect(response.refreshToken).toBeDefined();
+                
+                // saving the token
+                const refreshToken = response.refreshToken;
+
+                // delete the existing user
+                await request(app).delete('/api/v1/user').send({ refreshToken });
+
+                // now, make the request to the logout route
+                const logoutResponse = await request(app).post(logoutRoute)
+                    .set('Cookie', `refreshToken=${refreshToken}`)
+                    .send();
+
+                expect(logoutResponse.status).toBe(401);
             });
         });
     });
