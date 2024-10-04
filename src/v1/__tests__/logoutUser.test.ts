@@ -3,6 +3,7 @@ import app from "../../index";
 import { User } from "../models/User";
 import { setupTestDB } from "./test.setup";
 import { Token } from "../models/interfaces";
+import { REFRESH_TOKEN_AGE } from "../utils/secure/constants";
 
 
 // Setup mongodb in-memory server and mongoose connection
@@ -32,17 +33,20 @@ describe("Logout User Route", () => {
 
         describe("when refresh token is invalid", () => {
 
-            const invalidRefreshToken = "invalidrefreshtoken";
+            describe("when token format is invalid", () => {
 
-            it("Should return status code 401", async () => {
+                const invalidRefreshToken = "invalidrefreshtoken";
 
-                // now, make the request to the logout route
-                const response = await request(app).post(logoutRoute)
-                    .set('Cookie', `refreshToken=${invalidRefreshToken}`)
-                    .send();
+                it("Should return status code 401", async () => {
 
-                expect(response.status).toBe(401);
-            });
+                    // now, make the request to the logout route
+                    const response = await request(app).post(logoutRoute)
+                        .set('Cookie', `refreshToken=${invalidRefreshToken}`)
+                        .send();
+
+                    expect(response.status).toBe(401);
+                });
+            });         
         });
 
         describe("when user is logged in", () => {
@@ -117,7 +121,7 @@ describe("Logout User Route", () => {
                 });
             });
 
-            describe("when user is trying to login via other valid refresh token", () => {
+            describe("when user is trying to logout via other valid refresh token", () => {
 
                 let newRefreshToken: Token;
 
@@ -153,20 +157,15 @@ describe("Logout User Route", () => {
 
                 describe("when logging out with old refresh token", () => {
 
-                    beforeEach(async () => {
-                        
-                        // now, make the request to login the user
-                        const response = await request(app).post(loginRoute).send({
-                            email: userData.email,
-                            password: userData.password
-                        });
-
-                        expect(response.status).toBe(200);
-                    });
-
                     it("should return status code 403", async () => {
 
                         const oldRefreshToken = refreshToken;
+
+                        // hitting the login route again to make the current token old
+                        await request(app).post(loginRoute).send({
+                            email: userData.email,
+                            password: userData.password
+                        });
 
                         // now, make the request to the logout route
                         const response = await request(app).post(logoutRoute)
@@ -222,7 +221,7 @@ describe("Logout User Route", () => {
             let refreshToken: Token;
 
             beforeEach(async () => {
-                
+
                 // register the user
                 await request(app).post(registerRoute).send(userData);
 
