@@ -46,7 +46,7 @@ describe("Logout User Route", () => {
 
                     expect(response.status).toBe(401);
                 });
-            });         
+            });
         });
 
         describe("when user is logged in", () => {
@@ -273,7 +273,7 @@ describe("Logout User Route", () => {
 
                 // testing the available fields
                 expect(response.refreshToken).toBeDefined();
-                
+
                 // saving the token
                 const refreshToken = response.refreshToken;
 
@@ -286,6 +286,14 @@ describe("Logout User Route", () => {
                     .send();
 
                 expect(logoutResponse.status).toBe(401);
+            });
+        });
+
+        describe("when refresh token is expired", () => {
+
+            it("Should return status code 401", async () => {
+
+               
             });
         });
     });
