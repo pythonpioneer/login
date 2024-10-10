@@ -293,7 +293,14 @@ describe("Logout User Route", () => {
 
             it("Should return status code 401", async () => {
 
-               
+                /** FLOW OF THE TEST
+                 * Register the user
+                 * Login the user
+                 * store the refresh token to use it for logout
+                 * fast-forward the time to expire the refresh token, (REFRESH TOKEN AGE VARIABLE IS AVAIABLE, YOU CAN IMPORT IT)
+                 * Logout the user
+                 * assert the test, based on the standard status codes
+                 */
             });
         });
     });
