@@ -100,6 +100,18 @@ describe("Login User Route", () => {
                     expect(response.status).toBe(200);
                 });
             });
+
+            describe("when user is already logged in", () => {
+
+                it("should return status code 200", async () => {
+                    
+                    const response = await request(app).post(apiPath).send({
+                        email: userData.email,
+                        password: userData.password
+                    });
+                    expect(response.status).toBe(200);
+                });
+            });
         });
 
         describe("when there is a database error", () => {
